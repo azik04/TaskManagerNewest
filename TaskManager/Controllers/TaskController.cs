@@ -38,21 +38,21 @@ namespace TaskManager.Controllers
             
         }
         [HttpGet("done")]
-        public IActionResult GetAllDone(int themeId)
+        public IActionResult GetAllDone(long themeId)
         {
             var res = _service.GetAllDone(themeId);
             return Ok(res);
 
         }
         [HttpGet("notdone")]
-        public IActionResult GetAllNotDone(int themeId)
+        public IActionResult GetAllNotDone(long themeId)
         {
             var res = _service.GetAllNotDone(themeId);
             return Ok(res);
 
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(long id)
         {
             var res = await _service.GetById(id);
             if (res.StatusCode == Enum.StatusCode.OK)
@@ -62,7 +62,7 @@ namespace TaskManager.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Remove(int id)
+        public async Task<IActionResult> Remove(long id)
         {
             var res = await _service.Remove(id);
             if (res.StatusCode == Enum.StatusCode.OK)
@@ -71,7 +71,7 @@ namespace TaskManager.Controllers
             return BadRequest(res);
         }
         [HttpPut]
-        public async Task<IActionResult> Update(int id, UpdateTaskVM task)
+        public async Task<IActionResult> Update(long id, UpdateTaskVM task)
         {
             var res = await _service.Update(id, task);
             if (res.StatusCode == Enum.StatusCode.OK)
@@ -80,7 +80,7 @@ namespace TaskManager.Controllers
             return BadRequest(res);
         }
         [HttpPut("complite/{id}")]
-        public async Task<IActionResult> Complite(int id)
+        public async Task<IActionResult> Complite(long id)
         {
             var res = await _service.Complite(id);
             if (res.StatusCode == Enum.StatusCode.OK)

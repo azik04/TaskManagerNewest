@@ -21,7 +21,7 @@ namespace TaskManager.Context
                 entity.HasMany(th => th.Tasks)
                       .WithOne(t => t.Theme)
                       .HasForeignKey(t => t.ThemeId)
-                      .OnDelete(DeleteBehavior.Cascade); 
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Tasks>(entity =>
@@ -31,7 +31,7 @@ namespace TaskManager.Context
                 entity.HasMany(t => t.Files)
                       .WithOne(f => f.Task)
                       .HasForeignKey(f => f.TaskId)
-                      .OnDelete(DeleteBehavior.Cascade); 
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Files>(entity =>
@@ -42,13 +42,14 @@ namespace TaskManager.Context
                       .WithMany(t => t.Files)
                       .HasForeignKey(f => f.TaskId);
             });
-            modelBuilder.Entity<UserTask>()
-               .HasKey(ut => new { ut.TaskId, ut.UserId }); 
 
             modelBuilder.Entity<UserTask>()
-                .HasOne(ut => ut.Task)
+               .HasKey(ut => new { ut.ThemeId, ut.UserId });
+
+            modelBuilder.Entity<UserTask>()
+                .HasOne(ut => ut.Theme)
                 .WithMany(t => t.UserTasks)
-                .HasForeignKey(ut => ut.TaskId);
+                .HasForeignKey(ut => ut.ThemeId); // Ensure this matches the type
 
             modelBuilder.Entity<UserTask>()
                 .HasOne(ut => ut.User)

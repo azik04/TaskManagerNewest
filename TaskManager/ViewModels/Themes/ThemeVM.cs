@@ -2,8 +2,8 @@
 {
     public class ThemeVM
     {
-        public int id { get; set; }
+        public long id { get; set; }
         public string Name { get; set; }
-        public int UserId { get; set; }
+        public long UserId { get; set; }
     }
 }

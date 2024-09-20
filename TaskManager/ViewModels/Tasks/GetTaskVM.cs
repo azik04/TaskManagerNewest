@@ -16,6 +16,6 @@ namespace TaskManager.ViewModels.Tasks
         public bool IsCompleted { get; set; }
         public bool IsDeleted { get; set; }
         public ICollection<FilesVM> Files { get; set; }
-        public int ThemeId { get; set; }
+        public long ThemeId { get; set; }
     }
 }

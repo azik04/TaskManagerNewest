@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading.Tasks;
 using TaskManager.Context;
 using TaskManager.Models;
 using TaskManager.Response;
@@ -25,7 +21,7 @@ namespace TaskManager.Services.Implementations
             _contextAccessor = contextAccessor;
         }
 
-        public async Task<IBaseResponse<Users>> ChangeEmail(int id, ChangeEmail changeEmail)
+        public async Task<IBaseResponse<Users>> ChangeEmail(long id, ChangeEmail changeEmail)
         {
             try
             {
@@ -70,7 +66,7 @@ namespace TaskManager.Services.Implementations
 
         }
 
-        public async Task<IBaseResponse<Users>> ChangePassword(int id, ChangePasswordVM changePassword)
+        public async Task<IBaseResponse<Users>> ChangePassword(long id, ChangePasswordVM changePassword)
         {
             try
             {
@@ -116,7 +112,7 @@ namespace TaskManager.Services.Implementations
         }
 
 
-        public async Task<IBaseResponse<Users>> ChangeRole(int id)
+        public async Task<IBaseResponse<Users>> ChangeRole(long id)
         {
             try
             {
@@ -245,7 +241,7 @@ namespace TaskManager.Services.Implementations
             }
         }
 
-        public async Task<IBaseResponse<Users>> Remove(int id)
+        public async Task<IBaseResponse<Users>> Remove(long id)
         {
             try
             {

@@ -37,14 +37,14 @@ namespace TaskManager.Controllers
 
         }
         [HttpGet("userId/{id}")]
-        public IActionResult GetByUser(int id)
+        public IActionResult GetByUser(long id)
        {
             var res = _service.GetByUser(id);
             return Ok(res);
 
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(long id)
         {
             var res = await _service.GetById(id);
             if (res.StatusCode == Enum.StatusCode.OK)
@@ -54,7 +54,7 @@ namespace TaskManager.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Remove(int id)
+        public async Task<IActionResult> Remove(long id)
         {
             var res = await _service.Remove(id);
             if (res.StatusCode == Enum.StatusCode.OK)

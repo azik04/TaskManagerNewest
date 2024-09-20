@@ -8,20 +8,20 @@ public class CommentController : ControllerBase
 {
     private readonly ICommentService _service;
 
-    public CommentController(ICommentService service) // Change here
+    public CommentController(ICommentService service) 
     {
         _service = service;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetByTask(int id)
+    public async Task<IActionResult> GetByTask(long id)
     {
-        var res = await _service.GetByTask(id); // Await the async call
+        var res = await _service.GetByTask(id);
         return Ok(res);
     }
 
     [HttpDelete]
-    public async Task<IActionResult> Remove(int id)
+    public async Task<IActionResult> Remove(long id)
     {
         var res = await _service.Remove(id);
         if (res.StatusCode == TaskManager.Enum.StatusCode.OK)
@@ -33,7 +33,7 @@ public class CommentController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateCommentVM comment)
     {
-        var res = await _service.Create(comment); // Await the async call
+        var res = await _service.Create(comment);
         return Ok(res);
     }
 }

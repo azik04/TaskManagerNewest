@@ -70,7 +70,7 @@ namespace TaskManager.Services.Implementations
             }
         }
 
-        public async Task<IBaseResponse<ThemeVM>> GetById(int id)
+        public async Task<IBaseResponse<ThemeVM>> GetById(long id)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace TaskManager.Services.Implementations
             }
         }
 
-        public async Task<IBaseResponse<ICollection<ThemeVM>>> GetByUser(int id)
+        public async Task<IBaseResponse<ICollection<ThemeVM>>> GetByUser(long id)
         {
             try
             {
@@ -136,7 +136,7 @@ namespace TaskManager.Services.Implementations
             }
         }
 
-        public async Task<IBaseResponse<Themes>> Remove(int id)
+        public async Task<IBaseResponse<Themes>> Remove(long id)
         {
             try
             {

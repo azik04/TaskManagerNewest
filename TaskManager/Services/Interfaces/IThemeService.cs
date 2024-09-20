@@ -9,8 +9,8 @@ namespace TaskManager.Services.Interfaces
     {
         public Task<IBaseResponse<Themes>> Create(ThemeVM task);
         public Task<IBaseResponse<ICollection<ThemeVM>>> GetAll();
-        public Task<IBaseResponse<ICollection<ThemeVM>>> GetByUser(int id);
-        public Task<IBaseResponse<ThemeVM>> GetById(int id);
-        public Task<IBaseResponse<Themes>> Remove(int id);
+        public Task<IBaseResponse<ICollection<ThemeVM>>> GetByUser(long id);
+        public Task<IBaseResponse<ThemeVM>> GetById(long id);
+        public Task<IBaseResponse<Themes>> Remove(long id);
     }
 }

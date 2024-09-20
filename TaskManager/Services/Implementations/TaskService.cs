@@ -119,7 +119,7 @@ public class TaskService : ITaskService
             };
         }
     }
-    public async Task<IBaseResponse<GetTaskVM>> GetById(int id)
+    public async Task<IBaseResponse<GetTaskVM>> GetById(long id)
     {
         try
         {
@@ -173,7 +173,7 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<IBaseResponse<GetTaskVM>> Remove(int id)
+    public async Task<IBaseResponse<GetTaskVM>> Remove(long id)
     {
         try
         {
@@ -227,7 +227,7 @@ public class TaskService : ITaskService
         }
     }
     
-    public async Task<IBaseResponse<GetTaskVM>> Update(int id, UpdateTaskVM updateTask)
+    public async Task<IBaseResponse<GetTaskVM>> Update(long id, UpdateTaskVM updateTask)
     {
         try
         {
@@ -286,7 +286,7 @@ public class TaskService : ITaskService
             };
         }
     }
-        public async Task<IBaseResponse<GetTaskVM>> Complite(int id)
+        public async Task<IBaseResponse<GetTaskVM>> Complite(long id)
         {
         try
         {
@@ -341,7 +341,7 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<IBaseResponse<ICollection<GetTaskVM>>> GetAllDone(int themeId)
+    public async Task<IBaseResponse<ICollection<GetTaskVM>>> GetAllDone(long themeId)
     {
         try
         {
@@ -394,7 +394,7 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<IBaseResponse<ICollection<GetTaskVM>>> GetAllNotDone(int themeId)
+    public async Task<IBaseResponse<ICollection<GetTaskVM>>> GetAllNotDone(long themeId)
     {
         try
         {

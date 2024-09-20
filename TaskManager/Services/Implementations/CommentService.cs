@@ -43,7 +43,7 @@ namespace TaskManager.Services.Implementations
             }
         }
 
-        public async Task<IBaseResponse<ICollection<Comment>>> GetByTask(int taskId)
+        public async Task<IBaseResponse<ICollection<Comment>>> GetByTask(long taskId)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace TaskManager.Services.Implementations
             }
         }
 
-        public async Task<IBaseResponse<Comment>> Remove(int id)
+        public async Task<IBaseResponse<Comment>> Remove(long id)
         {
             try
             {

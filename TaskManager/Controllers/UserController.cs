@@ -46,7 +46,7 @@ namespace TaskManager.Controllers
         
 
         [HttpDelete]
-        public async Task<IActionResult> Remove(int id)
+        public async Task<IActionResult> Remove(long id)
         {
             var res = await _service.Remove(id);
             if (res.StatusCode == Enum.StatusCode.OK)
@@ -62,7 +62,7 @@ namespace TaskManager.Controllers
             return Ok();
         }
         [HttpPut("ChangeRole")]
-        public async Task<IActionResult> ChangeRole(int id)
+        public async Task<IActionResult> ChangeRole(long id)
         {
             var res = await _service.ChangeRole(id);
             if (res.StatusCode == Enum.StatusCode.OK)
@@ -71,7 +71,7 @@ namespace TaskManager.Controllers
             return BadRequest(res);
         }
         [HttpPut("ChangePassword")]
-        public async Task<IActionResult> ChangePassword(int id, ChangePasswordVM changePassword )
+        public async Task<IActionResult> ChangePassword(long id, ChangePasswordVM changePassword )
         {
             var res = await _service.ChangePassword(id,  changePassword);
             if (res.StatusCode == Enum.StatusCode.OK)
@@ -80,7 +80,7 @@ namespace TaskManager.Controllers
             return BadRequest(res);
         }
         [HttpPut("ChangeEmail")]
-        public async Task<IActionResult> ChangeEmail(int id, ChangeEmail changeEmail)
+        public async Task<IActionResult> ChangeEmail(long id, ChangeEmail changeEmail)
         {
             var res = await _service.ChangeEmail(id, changeEmail);
             if (res.StatusCode == Enum.StatusCode.OK)
