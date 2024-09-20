@@ -188,9 +188,10 @@ namespace TaskManager.Services.Implementations
                     Subject = new ClaimsIdentity(new[]
                     {
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim("UserId", user.Id.ToString())
+                new Claim("UserId", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString()) 
             }),
-                    Expires = DateTime.UtcNow.AddDays(1), 
+                    Expires = DateTime.UtcNow.AddDays(1),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
 

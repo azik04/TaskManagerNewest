@@ -22,7 +22,7 @@ namespace TaskManager.Services.Implementations
                 {
                     Message = comment.Message,
                     TaskId = comment.TaskId,
-                    UserId = comment.UserId
+                    UserName = comment.UserName
                 };
                 await _db.Comments.AddAsync(com);
                 await _db.SaveChangesAsync();
