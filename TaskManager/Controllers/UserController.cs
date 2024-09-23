@@ -21,6 +21,10 @@ namespace TaskManager.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(AccountVM task)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = await _service.Register(task);
             if (res.StatusCode == Enum.StatusCode.OK)
                 return Ok(res);
@@ -30,6 +34,10 @@ namespace TaskManager.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LogIn(LogInVM task)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = await _service.LogIn(task);
             if (res.StatusCode == Enum.StatusCode.OK)
                 return Ok(res);

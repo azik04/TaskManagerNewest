@@ -24,6 +24,10 @@ namespace TaskManager.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateTaskVM task)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
             var res = await _service.Create(task);
             if(res.StatusCode == Enum.StatusCode.OK)
                 return Ok(res);
@@ -53,7 +57,7 @@ namespace TaskManager.Controllers
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(long id)
-        {
+       {
             var res = await _service.GetById(id);
             if (res.StatusCode == Enum.StatusCode.OK)
                 return Ok(res);
@@ -89,28 +93,5 @@ namespace TaskManager.Controllers
             return BadRequest(res);
         }
 
-        [HttpGet("download/{id}")]
-        public async Task<IActionResult> DownloadFile(long fileId)
-        {
-            var fileEntity = await _db.Files.FindAsync(fileId);
-            if (fileEntity == null || fileEntity.IsDeleted)
-            {
-                return NotFound();
-            }
-
-            var filePath = Path.Combine("wwwroot", "upload", fileEntity.FileName);
-            if (!System.IO.File.Exists(filePath))
-            {
-                return NotFound();
-            }
-
-            var contentType = new FileExtensionContentTypeProvider().TryGetContentType(filePath, out var mimeType)
-                ? mimeType
-                : "application/octet-stream";
-
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-
-            return File(fileBytes, contentType, fileEntity.FileName);
-        }
     }
 }

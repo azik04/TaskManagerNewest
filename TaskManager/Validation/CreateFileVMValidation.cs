@@ -1,0 +1,18 @@
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http; // Assuming you're using ASP.NET Core
+using TaskManager.ViewModels.Files;
+
+namespace TaskManager.Validation
+{
+    public class CreateFileVMValidator : AbstractValidator<FilesVM>
+    {
+        public CreateFileVMValidator()
+        {
+            RuleFor(x => x.File)
+                .NotEmpty().WithMessage("File is required.")
+                .Must(file => file.Length > 0).WithMessage("File cannot be empty.")
+                .Must(file => file.Length <= 25 * 1024 * 1024) // Max size of 25 MB
+                .WithMessage("File size must not exceed 25 MB.");
+        }
+    }
+}

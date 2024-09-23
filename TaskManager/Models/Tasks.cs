@@ -20,5 +20,5 @@ public class Tasks
     public ICollection<Files> Files { get; set; } = new List<Files>();
     public Themes Theme { get; set; }
 
-
+    public ICollection<UserTask> UserTasks { get; set; } = new List<UserTask>();
 }

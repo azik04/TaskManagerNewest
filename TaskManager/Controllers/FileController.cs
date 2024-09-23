@@ -22,6 +22,10 @@ namespace TaskManager.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] UploadFileVM uploadFile)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             if (uploadFile.File == null || uploadFile.TaskId <= 0)
                 return BadRequest("Invalid file or task ID.");
 

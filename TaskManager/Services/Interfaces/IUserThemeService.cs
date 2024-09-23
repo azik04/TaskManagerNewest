@@ -7,6 +7,6 @@ namespace TaskManager.Services.Interfaces
         Task<bool> AddUsersToTask(long taskId, long userId);
         Task<bool> RemoveUserFromTheme(long taskId, long userId);
         Task<ICollection<Users>> GetUsersByThemeId(long taskId);
-        Task<ICollection<Themes>> GetThemesByUserId(long userId);
+        Task<ICollection<Tasks>> GetThemesByUserId(long userId);
     }
 }

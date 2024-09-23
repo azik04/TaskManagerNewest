@@ -15,32 +15,32 @@ namespace TaskManager.Controllers
         {
             _service = service;
         }
-        [HttpPost("{themeId}/users/{userId}")]
-        public async Task<IActionResult> AddUserToTask(long themeId, long userId)
+        [HttpPost("{taskId}/users/{userId}")]
+        public async Task<IActionResult> AddUserToTask(long taskId, long userId)
         {
-            var result = await _service.AddUsersToTask(themeId, userId);
+            var result = await _service.AddUsersToTask(taskId, userId);
             if (result)
                 return Ok("User added to task.");
             return BadRequest("Failed to add user to task.");
         }
 
-        [HttpDelete("{themeId}/users/{userId}")]
-        public async Task<IActionResult> RemoveUserFromTask(long themeId, long userId)
+        [HttpDelete("{taskId}/users/{userId}")]
+        public async Task<IActionResult> RemoveUserFromTask(long taskId, long userId)
         {
-            var result = await _service.RemoveUserFromTheme(themeId, userId);
+            var result = await _service.RemoveUserFromTheme(taskId, userId);
             if (result)
                 return Ok("User removed from task.");
             return BadRequest("Failed to remove user from task.");
         }
 
-        [HttpGet("{themeId}/users")]
-        public async Task<IActionResult> GetUsersByThemeId(long themeId)
+        [HttpGet("{taskId}/users")]
+        public async Task<IActionResult> GetUsersByTaskId(long taskId)
         {
-            var users = await _service.GetUsersByThemeId(themeId);
+            var users = await _service.GetUsersByThemeId(taskId);
             return Ok(users);
         }
         [HttpGet("{userId}/theme")]
-        public async Task<IActionResult> GetThemeByUserId(long userId)
+        public async Task<IActionResult> GetTaskByUserId(long userId)
         {
             var users = await _service.GetThemesByUserId(userId);
             return Ok(users);

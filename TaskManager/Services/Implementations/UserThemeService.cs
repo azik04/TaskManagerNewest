@@ -19,7 +19,7 @@ namespace TaskManager.Services.Implementations
         {
             try
             {
-                var task = await _db.Themes.FindAsync(themeId);
+                var task = await _db.Tasks.FindAsync(themeId);
                 var user = await _db.Users.FindAsync(userId);
 
                 if (task == null || user == null)
@@ -27,7 +27,7 @@ namespace TaskManager.Services.Implementations
 
                 // Check if the user-task relationship already exists
                 var existingUserTask = await _db.UserTasks
-                    .AnyAsync(ut => ut.ThemeId == themeId && ut.UserId == userId);
+                    .AnyAsync(ut => ut.TaskId == themeId && ut.UserId == userId);
 
                 if (existingUserTask)
                 {
@@ -37,7 +37,7 @@ namespace TaskManager.Services.Implementations
 
                 var userTask = new UserTask
                 {
-                    ThemeId = themeId,
+                    TaskId = themeId,
                     UserId = userId
                 };
 
@@ -58,7 +58,7 @@ namespace TaskManager.Services.Implementations
         public async Task<bool> RemoveUserFromTheme(long themeId, long userId)
         {
             var userTask = await _db.UserTasks
-                .FirstOrDefaultAsync(ut => ut.ThemeId == themeId && ut.UserId == userId);
+                .FirstOrDefaultAsync(ut => ut.TaskId == themeId && ut.UserId == userId);
 
             if (userTask == null)
                 return false;
@@ -72,23 +72,22 @@ namespace TaskManager.Services.Implementations
         public async Task<ICollection<Users>> GetUsersByThemeId(long themeId)
         {
             var users = await _db.UserTasks
-                .Where(ut => ut.ThemeId == themeId)
+                .Where(ut => ut.TaskId == themeId)
                 .Select(ut => ut.User)
                 .ToListAsync();
 
             return users;
         }
-        public async Task<ICollection<Themes>> GetThemesByUserId(long userId)
-       {
+        public async Task<ICollection<Tasks>> GetThemesByUserId(long userId)
+        {
             var themes = await _db.UserTasks
-                .Where(ut => ut.UserId == userId) 
-                .Include(ut => ut.Theme) 
-                .Select(ut => ut.Theme) 
-                .Distinct() 
+                .Where(ut => ut.UserId == userId)
+                .Include(ut => ut.Task)
+                .Select(ut => ut.Task)
+                .Distinct()
                 .ToListAsync();
 
             return themes;
         }
-
     }
 }

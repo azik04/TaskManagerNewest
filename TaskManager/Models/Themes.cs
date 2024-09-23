@@ -11,6 +11,6 @@
         public Users Users { get; set; }
 
         // New property for collaboration
-        public ICollection<UserTask> UserTasks { get; set; } = new List<UserTask>();
+
     }
 }

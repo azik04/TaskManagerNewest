@@ -247,7 +247,6 @@ public class TaskService : ITaskService
             task.DeadLine = updateTask.DeadLine;
             task.Priority = updateTask.Priority;
             task.DeadLine = updateTask.DeadLine;
-            task.ThemeId = updateTask.ThemeId;
 
             _db.Tasks.Update(task);
             await _db.SaveChangesAsync();

@@ -23,6 +23,10 @@ namespace TaskManager.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ThemeVM task)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = await _service.Create(task);
             if (res.StatusCode == Enum.StatusCode.OK)
                 return Ok(res);

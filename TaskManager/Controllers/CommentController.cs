@@ -33,6 +33,10 @@ public class CommentController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateCommentVM comment)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var res = await _service.Create(comment);
         return Ok(res);
     }
