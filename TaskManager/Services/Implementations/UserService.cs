@@ -58,6 +58,7 @@ public class UserService : IUserService
                 Email = user.Email,
                 Password = user.Password,
                 UserName = user.UserName,
+                Role = user.Role,
             };
             Log.Information("User with Id {UserId} changed email successfully", id);
 
@@ -113,6 +114,7 @@ public class UserService : IUserService
                 Email = user.Email,
                 Password = user.Password,
                 UserName = user.UserName,
+                Role = user.Role,
             };
             Log.Information("User with Id {UserId} changed password successfully", id);
 
@@ -158,6 +160,7 @@ public class UserService : IUserService
                 Email = user.Email,
                 Password = user.Password,
                 UserName = user.UserName,
+                Role = user.Role,
             };
             Log.Information("User with Id {UserId} role changed to Admin successfully", id);
 
@@ -195,6 +198,7 @@ public class UserService : IUserService
                     Email = item.Email,
                     Password = item.Password,
                     UserName = item.UserName,
+                    Role = item.Role,
                 };
 
                 usersVM.Add(vm);
@@ -240,6 +244,8 @@ public class UserService : IUserService
                 Email = user.Email,
                 Password = user.Password,
                 UserName = user.UserName,
+                Role = user.Role,
+
             };
             Log.Information("User with Id {UserId} removed successfully", id);
 
@@ -277,7 +283,7 @@ public class UserService : IUserService
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("YourVeryStrongSecretKey123456789012");
+            var key = Encoding.ASCII.GetBytes("0BD0E95C-6387-4135-A80E-489FF6E5C1DF");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] {
@@ -332,6 +338,8 @@ public class UserService : IUserService
                 Email = user.Email,
                 Password = user.Password,
                 UserName = user.UserName,
+                Role = user.Role,
+
             };
             Log.Information("User with UserName {UserName} registered successfully", task.UserName);
 
@@ -379,6 +387,8 @@ public class UserService : IUserService
                 Email = user.Email,
                 Password = user.Password,
                 UserName = user.UserName,
+                Role = user.Role,
+
             };
             Log.Information("User with Id {UserId} removed successfully", id);
 

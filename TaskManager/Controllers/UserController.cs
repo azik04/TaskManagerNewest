@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.UsersVMs;
 using TaskManager.ViewModels.RegisterVM;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManager.Controllers;
 
@@ -50,6 +51,7 @@ public class UserController : ControllerBase
         return Ok(res);
     }
     [HttpGet("{id}")]
+    [Authorize(Policy = "Admin")]
     public async Task<IActionResult> GetById(int Id)
     {
         var res = await _service.GetById(Id);
@@ -57,6 +59,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Policy = "User")]
     public async Task<IActionResult> Remove(long id)
     {
         var res = await _service.Remove(id);
@@ -67,9 +70,8 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> LogOut()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok("LogOut successfully");
     }
     [HttpPut("ChangeRole")]
