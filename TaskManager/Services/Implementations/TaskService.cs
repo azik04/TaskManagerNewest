@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Serilog;
 using TaskManager.Context;
 using TaskManager.Models;
 using TaskManager.Response;
@@ -11,10 +12,12 @@ namespace TaskManager.Services.Implementations;
 public class TaskService : ITaskService
 {
     private readonly ApplicationDbContext _db;
+
     public TaskService(ApplicationDbContext db)
     {
         _db = db;
     }
+
     public async Task<IBaseResponse<GetTaskVM>> Create(CreateTaskVM task)
     {
         try
@@ -33,7 +36,6 @@ public class TaskService : ITaskService
             await _db.Tasks.AddAsync(data);
             await _db.SaveChangesAsync();
 
-            // Создание DTO для возвращаемого значения
             var taskDTO = new GetTaskVM
             {
                 Id = data.Id,
@@ -49,7 +51,7 @@ public class TaskService : ITaskService
                     File = f.FileName
                 }).ToList(),
             };
-
+            Log.Information("Task {TaskId} created successfully", taskDTO.Id);
             return new BaseResponse<GetTaskVM>
             {
                 Data = taskDTO,
@@ -59,6 +61,7 @@ public class TaskService : ITaskService
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error occurred while creating task: {Message}", ex.Message);
             return new BaseResponse<GetTaskVM>
             {
                 StatusCode = Enum.StatusCode.Error,
@@ -76,33 +79,27 @@ public class TaskService : ITaskService
                 .Include(x => x.Files)
                 .ToListAsync();
 
-            var taskViewModels = new List<GetTaskVM>();
-
-            foreach (var item in tasks)
+            var taskViewModels = tasks.Select(item => new GetTaskVM
             {
-                var vm = new GetTaskVM
+                Id = item.Id,
+                TaskName = item.TaskName,
+                TaskDescription = item.TaskDescription,
+                Status = item.Status,
+                Priority = item.Priority,
+                DeadLine = item.DeadLine,
+                DateOfCompletion = item.DateOfCompletion,
+                CreateDate = item.CreateDate,
+                IsCompleted = item.IsCompleted,
+                ThemeId = item.ThemeId,
+                Files = item.Files.Select(f => new FilesVM
                 {
-                    Id = item.Id,
-                    TaskName = item.TaskName,
-                    TaskDescription = item.TaskDescription,
-                    Status = item.Status,
-                    Priority = item.Priority,
-                    DeadLine = item.DeadLine,
-                    DateOfCompletion = item.DateOfCompletion,
-                    CreateDate = item.CreateDate,
-                    IsCompleted = item.IsCompleted,
-                    ThemeId = item.ThemeId,
-                    Files = item.Files.Select(f => new FilesVM
-                    {
-                        Id = f.Id,
-                        File = f.FileName,
-                        IsDeleted = f.IsDeleted
-                    }).ToList()
-                };
+                    Id = f.Id,
+                    File = f.FileName,
+                    IsDeleted = f.IsDeleted
+                }).ToList()
+            }).ToList();
 
-                taskViewModels.Add(vm);
-            }
-
+            Log.Information("Retrieved all tasks successfully");
             return new BaseResponse<ICollection<GetTaskVM>>
             {
                 Data = taskViewModels,
@@ -112,6 +109,7 @@ public class TaskService : ITaskService
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error occurred while retrieving tasks: {Message}", ex.Message);
             return new BaseResponse<ICollection<GetTaskVM>>
             {
                 StatusCode = Enum.StatusCode.Error,
@@ -119,6 +117,7 @@ public class TaskService : ITaskService
             };
         }
     }
+
     public async Task<IBaseResponse<GetTaskVM>> GetById(long id)
     {
         try
@@ -129,13 +128,14 @@ public class TaskService : ITaskService
 
             if (task == null)
             {
+                Log.Warning("Task with Id {TaskId} was not found", id);
                 return new BaseResponse<GetTaskVM>
                 {
                     StatusCode = Enum.StatusCode.NotFound,
                     Description = $"Task with Id {id} was not found."
                 };
             }
-            
+
             var taskDTO = new GetTaskVM
             {
                 Id = task.Id,
@@ -156,6 +156,7 @@ public class TaskService : ITaskService
                 }).ToList()
             };
 
+            Log.Information("Task with Id {TaskId} retrieved successfully", task.Id);
             return new BaseResponse<GetTaskVM>
             {
                 Data = taskDTO,
@@ -165,6 +166,7 @@ public class TaskService : ITaskService
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error occurred while retrieving task with Id {TaskId}: {Message}", id, ex.Message);
             return new BaseResponse<GetTaskVM>
             {
                 StatusCode = Enum.StatusCode.Error,
@@ -180,15 +182,18 @@ public class TaskService : ITaskService
             var task = await _db.Tasks.SingleOrDefaultAsync(x => x.Id == id);
             if (task == null)
             {
+                Log.Warning("Task with Id {TaskId} not found for removal", id);
                 return new BaseResponse<GetTaskVM>
                 {
                     StatusCode = Enum.StatusCode.NotFound,
                     Description = $"Task with Id {id} not found."
                 };
             }
+
             task.IsDeleted = true;
             _db.Tasks.Remove(task);
             await _db.SaveChangesAsync();
+
             var taskDTO = new GetTaskVM
             {
                 Id = task.Id,
@@ -208,8 +213,8 @@ public class TaskService : ITaskService
                     IsDeleted = f.IsDeleted
                 }).ToList()
             };
-         
 
+            Log.Information("Task with Id {TaskId} has been successfully removed", task.Id);
             return new BaseResponse<GetTaskVM>
             {
                 Data = taskDTO,
@@ -219,6 +224,7 @@ public class TaskService : ITaskService
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error occurred while removing task with Id {TaskId}: {Message}", id, ex.Message);
             return new BaseResponse<GetTaskVM>
             {
                 StatusCode = Enum.StatusCode.Error,
@@ -226,7 +232,7 @@ public class TaskService : ITaskService
             };
         }
     }
-    
+
     public async Task<IBaseResponse<GetTaskVM>> Update(long id, UpdateTaskVM updateTask)
     {
         try
@@ -234,6 +240,7 @@ public class TaskService : ITaskService
             var task = await _db.Tasks.SingleOrDefaultAsync(x => x.Id == id);
             if (task == null)
             {
+                Log.Warning("Task with Id {TaskId} not found for update", id);
                 return new BaseResponse<GetTaskVM>
                 {
                     StatusCode = Enum.StatusCode.NotFound,
@@ -246,10 +253,10 @@ public class TaskService : ITaskService
             task.Status = updateTask.Status;
             task.DeadLine = updateTask.DeadLine;
             task.Priority = updateTask.Priority;
-            task.DeadLine = updateTask.DeadLine;
 
             _db.Tasks.Update(task);
             await _db.SaveChangesAsync();
+
             var taskDTO = new GetTaskVM
             {
                 Id = task.Id,
@@ -269,6 +276,8 @@ public class TaskService : ITaskService
                     IsDeleted = f.IsDeleted
                 }).ToList()
             };
+
+            Log.Information("Task with Id {TaskId} has been successfully updated", task.Id);
             return new BaseResponse<GetTaskVM>
             {
                 Data = taskDTO,
@@ -278,6 +287,7 @@ public class TaskService : ITaskService
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error occurred while updating task with Id {TaskId}: {Message}", id, ex.Message);
             return new BaseResponse<GetTaskVM>
             {
                 StatusCode = Enum.StatusCode.Error,
@@ -285,13 +295,15 @@ public class TaskService : ITaskService
             };
         }
     }
-        public async Task<IBaseResponse<GetTaskVM>> Complite(long id)
-        {
+
+    public async Task<IBaseResponse<GetTaskVM>> Complite(long id)
+    {
         try
         {
             var task = await _db.Tasks.SingleOrDefaultAsync(x => x.Id == id);
             if (task == null)
             {
+                Log.Warning("Task with Id {TaskId} not found for completion", id);
                 return new BaseResponse<GetTaskVM>
                 {
                     StatusCode = Enum.StatusCode.NotFound,
@@ -303,6 +315,7 @@ public class TaskService : ITaskService
 
             _db.Tasks.Update(task);
             await _db.SaveChangesAsync();
+
             var taskDTO = new GetTaskVM
             {
                 Id = task.Id,
@@ -323,6 +336,7 @@ public class TaskService : ITaskService
                 }).ToList()
             };
 
+            Log.Information("Task with Id {TaskId} has been marked as completed", task.Id);
             return new BaseResponse<GetTaskVM>
             {
                 Data = taskDTO,
@@ -332,6 +346,7 @@ public class TaskService : ITaskService
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error occurred while completing task with Id {TaskId}: {Message}", id, ex.Message);
             return new BaseResponse<GetTaskVM>
             {
                 StatusCode = Enum.StatusCode.Error,
@@ -349,46 +364,41 @@ public class TaskService : ITaskService
                 .Include(x => x.Files)
                 .ToListAsync();
 
-            var taskViewModels = new List<GetTaskVM>();
-
-            foreach (var item in tasks)
+            var taskViewModels = tasks.Select(item => new GetTaskVM
             {
-                var vm = new GetTaskVM
+                Id = item.Id,
+                TaskName = item.TaskName,
+                TaskDescription = item.TaskDescription,
+                Status = item.Status,
+                Priority = item.Priority,
+                DeadLine = item.DeadLine,
+                DateOfCompletion = item.DateOfCompletion,
+                CreateDate = item.CreateDate,
+                IsCompleted = item.IsCompleted,
+                ThemeId = item.ThemeId,
+                Files = item.Files.Select(f => new FilesVM
                 {
-                    Id = item.Id,
-                    TaskName = item.TaskName,
-                    TaskDescription = item.TaskDescription,
-                    Status = item.Status,
-                    Priority = item.Priority,
-                    DeadLine = item.DeadLine,
-                    DateOfCompletion = item.DateOfCompletion,
-                    CreateDate = item.CreateDate,
-                    IsCompleted = item.IsCompleted,
-                    ThemeId = item.ThemeId,
-                    Files = item.Files.Select(f => new FilesVM
-                    {
-                        Id = f.Id,
-                        File = f.FileName,
-                        IsDeleted = f.IsDeleted
-                    }).ToList()
-                };
+                    Id = f.Id,
+                    File = f.FileName,
+                    IsDeleted = f.IsDeleted
+                }).ToList()
+            }).ToList();
 
-                taskViewModels.Add(vm);
-            }
-
+            Log.Information("Retrieved all completed tasks for theme Id {ThemeId} successfully", themeId);
             return new BaseResponse<ICollection<GetTaskVM>>
             {
                 Data = taskViewModels,
                 StatusCode = Enum.StatusCode.OK,
-                Description = "All tasks have been successfully retrieved."
+                Description = "All completed tasks have been successfully retrieved."
             };
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error occurred while retrieving completed tasks for theme Id {ThemeId}: {Message}", themeId, ex.Message);
             return new BaseResponse<ICollection<GetTaskVM>>
             {
                 StatusCode = Enum.StatusCode.Error,
-                Description = $"An error occurred while retrieving tasks: {ex.Message}"
+                Description = $"An error occurred while retrieving completed tasks: {ex.Message}"
             };
         }
     }
@@ -400,48 +410,43 @@ public class TaskService : ITaskService
             var tasks = await _db.Tasks
                .Where(x => !x.IsDeleted && !x.IsCompleted && x.ThemeId == themeId)
                .Include(x => x.Files)
-                .ToListAsync();
+               .ToListAsync();
 
-            var taskViewModels = new List<GetTaskVM>();
-
-            foreach (var item in tasks)
+            var taskViewModels = tasks.Select(item => new GetTaskVM
             {
-                var vm = new GetTaskVM
+                Id = item.Id,
+                TaskName = item.TaskName,
+                TaskDescription = item.TaskDescription,
+                Status = item.Status,
+                Priority = item.Priority,
+                DeadLine = item.DeadLine,
+                DateOfCompletion = item.DateOfCompletion,
+                CreateDate = item.CreateDate,
+                IsCompleted = item.IsCompleted,
+                ThemeId = item.ThemeId,
+                Files = item.Files.Select(f => new FilesVM
                 {
-                    Id = item.Id,
-                    TaskName = item.TaskName,
-                    TaskDescription = item.TaskDescription,
-                    Status = item.Status,
-                    Priority = item.Priority,
-                    DeadLine = item.DeadLine,
-                    DateOfCompletion = item.DateOfCompletion,
-                    CreateDate = item.CreateDate,
-                    IsCompleted = item.IsCompleted,
-                    ThemeId = item.ThemeId,
-                    Files = item.Files.Select(f => new FilesVM
-                    {
-                        Id = f.Id,
-                        File = f.FileName,
-                        IsDeleted = f.IsDeleted
-                    }).ToList()
-                };
+                    Id = f.Id,
+                    File = f.FileName,
+                    IsDeleted = f.IsDeleted
+                }).ToList()
+            }).ToList();
 
-                taskViewModels.Add(vm);
-            }
-
+            Log.Information("Retrieved all not completed tasks for theme Id {ThemeId} successfully", themeId);
             return new BaseResponse<ICollection<GetTaskVM>>
             {
                 Data = taskViewModels,
                 StatusCode = Enum.StatusCode.OK,
-                Description = "All tasks have been successfully retrieved."
+                Description = "All not completed tasks have been successfully retrieved."
             };
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error occurred while retrieving not completed tasks for theme Id {ThemeId}: {Message}", themeId, ex.Message);
             return new BaseResponse<ICollection<GetTaskVM>>
             {
                 StatusCode = Enum.StatusCode.Error,
-                Description = $"An error occurred while retrieving tasks: {ex.Message}"
+                Description = $"An error occurred while retrieving not completed tasks: {ex.Message}"
             };
         }
     }

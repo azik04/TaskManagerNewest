@@ -1,17 +1,14 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace TaskManager.Models;
 
-namespace TaskManager.Models
+public class Files
 {
-    public class Files
-    {
-        public long Id { get; set; }
-        public string FileName { get; set; } // Changed to FileName for clarity
+    public long Id { get; set; }
+    public string FileName { get; set; } 
 
-        // Foreign key for Task
-        public long TaskId { get; set; }
-        public Tasks Task { get; set; } // Navigation property
+    // Foreign key for Task
+    public long TaskId { get; set; }
+    public Tasks Task { get; set; }
 
-        public bool IsDeleted { get; set; }
-        public DateTime CreateAt { get; set; }
-    }
+    public bool IsDeleted { get; set; }
+    public DateTime CreateAt { get; set; }
 }

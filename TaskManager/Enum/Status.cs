@@ -1,9 +1,8 @@
-﻿namespace TaskManager.Enum
+﻿namespace TaskManager.Enum;
+
+public enum Status
 {
-    public enum Status
-    {
-        Availible,
-        inProcess,
-        Complete
-    }
+    Availible,
+    inProcess,
+    Complete
 }

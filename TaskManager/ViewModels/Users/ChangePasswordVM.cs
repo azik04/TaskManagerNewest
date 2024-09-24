@@ -1,8 +1,7 @@
-﻿namespace TaskManager.ViewModels.Users
+﻿namespace TaskManager.ViewModels.Users;
+
+public class ChangePasswordVM
 {
-    public class ChangePasswordVM
-    {
-        public string OldPassword { get; set; }
-        public string NewPassword { get; set; }
-    }
+    public string OldPassword { get; set; }
+    public string NewPassword { get; set; }
 }

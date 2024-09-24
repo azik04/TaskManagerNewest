@@ -1,9 +1,8 @@
-﻿namespace TaskManager.Enum
+﻿namespace TaskManager.Enum;
+
+public enum Priority
 {
-    public enum Priority
-    {
-        High,
-        Medium,
-        Low
-    }
+    High,
+    Medium,
+    Low
 }

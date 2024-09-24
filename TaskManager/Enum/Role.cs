@@ -1,8 +1,7 @@
-﻿namespace TaskManager.Enum
+﻿namespace TaskManager.Enum;
+
+public enum Role
 {
-    public enum Role
-    {
-        User,
-        Admin
-    }
+    User,
+    Admin
 }

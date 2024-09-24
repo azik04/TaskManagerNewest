@@ -2,6 +2,7 @@
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Comments;
 
+namespace TaskManager.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class CommentController : ControllerBase

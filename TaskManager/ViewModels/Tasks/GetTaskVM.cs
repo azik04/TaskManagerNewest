@@ -1,5 +1,4 @@
 ﻿using TaskManager.ViewModels.Files;
-using TaskManager.ViewModels.Themes;
 
 namespace TaskManager.ViewModels.Tasks
 {

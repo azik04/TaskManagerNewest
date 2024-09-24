@@ -1,9 +1,8 @@
-﻿namespace TaskManager.Enum
+﻿namespace TaskManager.Enum;
+
+public enum StatusCode
 {
-    public enum StatusCode
-    {
-        OK = 200,
-        Error = 500,
-        NotFound = 400
-    }
+    OK = 200,
+    Error = 500,
+    NotFound = 400
 }

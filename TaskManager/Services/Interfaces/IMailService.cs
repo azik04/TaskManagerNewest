@@ -1,7 +1,6 @@
-﻿namespace TaskManager.Services.Interfaces
+﻿namespace TaskManager.Services.Interfaces;
+
+public interface IMailService
 {
-    public interface IMailService
-    {
-        Task Send(string from, string to, string subject);
-    }
+    Task Send(string from, string to, string subject);
 }

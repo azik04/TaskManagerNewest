@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using TaskManager.Enum;
+﻿using TaskManager.Enum;
 
-namespace TaskManager.Response
+namespace TaskManager.Response;
+
+public interface IBaseResponse<T>
 {
-    public interface IBaseResponse<T>
-    {
-        T Data { get; set; }
-        string Description { get; set; }
-        StatusCode StatusCode { get; set; }
-    }
+    T Data { get; set; }
+    string Description { get; set; }
+    StatusCode StatusCode { get; set; }
 }

@@ -1,7 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using TaskManager.Enum;
-
-namespace TaskManager.Models;
+﻿namespace TaskManager.Models;
 
 public class Tasks
 {

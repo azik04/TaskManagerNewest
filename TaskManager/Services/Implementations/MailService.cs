@@ -1,53 +1,51 @@
 ﻿using MimeKit;
 using TaskManager.Services.Interfaces;
 
-namespace TaskManager.Services.Implementations
+namespace TaskManager.Services.Implementations;
+
+public class MailService : IMailService
 {
-    public class MailService : IMailService
+    private readonly IHostEnvironment _env;
+
+    public MailService(IHostEnvironment env)
     {
-        private readonly IHostEnvironment _env;
+        _env = env;
+    }
 
-        public MailService(IHostEnvironment env)
+    public async Task Send(string from, string to, string subject)
+    {
+        try
         {
-            _env = env;
+            string path = Path.Combine(_env.ContentRootPath, "wwwroot", "assets", "Templates", "htmlpage.html");
+
+            string emailTemplate;
+            using (StreamReader sourceReader = new StreamReader(path))
+            {
+                emailTemplate = await sourceReader.ReadToEndAsync();
+            }
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Sender Name", from));
+            message.To.Add(new MailboxAddress("Recipient Name", to));
+            message.Subject = subject;
+
+            var bodyBuilder = new BodyBuilder
+            {
+                HtmlBody = emailTemplate
+            };
+            message.Body = bodyBuilder.ToMessageBody();
+
+            using (var client = new MailKit.Net.Smtp.SmtpClient())
+            {
+                await client.ConnectAsync("smtp.mail.ru", 465, MailKit.Security.SecureSocketOptions.SslOnConnect);
+                await client.AuthenticateAsync("hacibalaev.azik@mail.ru", "b7aLR8bgc53xUj99CaET");
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
         }
-
-        public async Task Send(string from, string to, string subject)
+        catch (Exception ex)
         {
-            try
-            {
-                string path = Path.Combine(_env.ContentRootPath, "wwwroot", "assets", "Templates", "htmlpage.html");
-
-                string emailTemplate;
-                using (StreamReader sourceReader = new StreamReader(path))
-                {
-                    emailTemplate = await sourceReader.ReadToEndAsync();
-                }
-
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Sender Name", from));
-                message.To.Add(new MailboxAddress("Recipient Name", to));
-                message.Subject = subject;
-
-                var bodyBuilder = new BodyBuilder
-                {
-                    HtmlBody = emailTemplate
-                };
-                message.Body = bodyBuilder.ToMessageBody();
-
-                using (var client = new MailKit.Net.Smtp.SmtpClient())
-                {
-                    await client.ConnectAsync("smtp.mail.ru", 465, MailKit.Security.SecureSocketOptions.SslOnConnect);
-                    await client.AuthenticateAsync("hacibalaev.azik@mail.ru", "b7aLR8bgc53xUj99CaET"); // Use secure config here
-                    await client.SendAsync(message);
-                    await client.DisconnectAsync(true);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (you could use a logging library)
-                Console.WriteLine($"Error sending email: {ex.Message}");
-            }
+            Console.WriteLine($"Error sending email: {ex.Message}");
         }
     }
 }
