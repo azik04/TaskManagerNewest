@@ -10,5 +10,8 @@ public class Users : BaseModel
     public string Email { get; set; }
     public Role Role { get; set; }
 
-    public ICollection<UserTask> UserTasks { get; set; } = new List<UserTask>(); 
+    public virtual ICollection<Tasks> Tasks { get; set; }
+    public virtual ICollection<UserTask> UserTasks { get; set; }
+    public virtual ICollection<Comment> Comment { get; set; }
+    public virtual ICollection<Themes> Themes { get; set; }
 }

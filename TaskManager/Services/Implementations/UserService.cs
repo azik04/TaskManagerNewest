@@ -8,6 +8,7 @@ using TaskManager.Context;
 using TaskManager.Models;
 using TaskManager.Response;
 using TaskManager.Services.Interfaces;
+using TaskManager.ViewModels.RegisterVM;
 using TaskManager.ViewModels.UsersVMs;
 
 namespace TaskManager.Services.Implementations;
@@ -23,7 +24,7 @@ public class UserService : IUserService
         _contextAccessor = contextAccessor;
     }
 
-    public async Task<IBaseResponse<Users>> ChangeEmail(long id, ChangeEmail changeEmail)
+    public async Task<IBaseResponse<GetUserVM>> ChangeEmail(long id, ChangeEmail changeEmail)
     {
         try
         {
@@ -31,7 +32,7 @@ public class UserService : IUserService
             if (user == null)
             {
                 Log.Warning("User with Id {UserId} not found during email change", id);
-                return new BaseResponse<Users>
+                return new BaseResponse<GetUserVM>
                 {
                     Description = "User not found.",
                     StatusCode = Enum.StatusCode.NotFound
@@ -41,7 +42,7 @@ public class UserService : IUserService
             if (changeEmail.OldEmail != user.Email)
             {
                 Log.Warning("Old email for UserId {UserId} does not match", id);
-                return new BaseResponse<Users>
+                return new BaseResponse<GetUserVM>
                 {
                     Description = "Old email is incorrect.",
                     StatusCode = Enum.StatusCode.Error
@@ -51,12 +52,18 @@ public class UserService : IUserService
             user.Email = changeEmail.NewEmail;
             _db.Users.Update(user);
             await _db.SaveChangesAsync();
-
+            var vm = new GetUserVM()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Password = user.Password,
+                UserName = user.UserName,
+            };
             Log.Information("User with Id {UserId} changed email successfully", id);
 
-            return new BaseResponse<Users>
+            return new BaseResponse<GetUserVM>
             {
-                Data = user,
+                Data = vm,
                 Description = "Email changed successfully.",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -64,7 +71,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while changing email for UserId {UserId}: {Message}", id, ex.Message);
-            return new BaseResponse<Users>
+            return new BaseResponse<GetUserVM>
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error
@@ -72,7 +79,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IBaseResponse<Users>> ChangePassword(long id, ChangePasswordVM changePassword)
+    public async Task<IBaseResponse<GetUserVM>> ChangePassword(long id, ChangePasswordVM changePassword)
     {
         try
         {
@@ -80,7 +87,7 @@ public class UserService : IUserService
             if (user == null)
             {
                 Log.Warning("User with Id {UserId} not found during password change", id);
-                return new BaseResponse<Users>
+                return new BaseResponse<GetUserVM>
                 {
                     Description = "User not found.",
                     StatusCode = Enum.StatusCode.NotFound
@@ -90,7 +97,7 @@ public class UserService : IUserService
             if (changePassword.OldPassword != user.Password)
             {
                 Log.Warning("Old password for UserId {UserId} is incorrect", id);
-                return new BaseResponse<Users>
+                return new BaseResponse<GetUserVM>
                 {
                     Description = "Old password is incorrect.",
                     StatusCode = Enum.StatusCode.Error
@@ -100,12 +107,18 @@ public class UserService : IUserService
             user.Password = changePassword.NewPassword;
             _db.Users.Update(user);
             await _db.SaveChangesAsync();
-
+            var vm = new GetUserVM()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Password = user.Password,
+                UserName = user.UserName,
+            };
             Log.Information("User with Id {UserId} changed password successfully", id);
 
-            return new BaseResponse<Users>
+            return new BaseResponse<GetUserVM>
             {
-                Data = user,
+                Data = vm,
                 Description = "Password changed successfully.",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -113,7 +126,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while changing password for UserId {UserId}: {Message}", id, ex.Message);
-            return new BaseResponse<Users>
+            return new BaseResponse<GetUserVM>
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error
@@ -121,7 +134,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IBaseResponse<Users>> ChangeRole(long id)
+    public async Task<IBaseResponse<GetUserVM>> ChangeRole(long id)
     {
         try
         {
@@ -129,7 +142,7 @@ public class UserService : IUserService
             if (user == null)
             {
                 Log.Warning("User with Id {UserId} not found during role change", id);
-                return new BaseResponse<Users>
+                return new BaseResponse<GetUserVM>
                 {
                     Description = "User not found.",
                     StatusCode = Enum.StatusCode.NotFound
@@ -139,12 +152,18 @@ public class UserService : IUserService
             user.Role = Enum.Role.Admin;
             _db.Users.Update(user);
             await _db.SaveChangesAsync();
-
+            var vm = new GetUserVM()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Password = user.Password,
+                UserName = user.UserName,
+            };
             Log.Information("User with Id {UserId} role changed to Admin successfully", id);
 
-            return new BaseResponse<Users>
+            return new BaseResponse<GetUserVM>
             {
-                Data = user,
+                Data = vm,
                 Description = "User role changed successfully.",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -152,7 +171,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while changing role for UserId {UserId}: {Message}", id, ex.Message);
-            return new BaseResponse<Users>
+            return new BaseResponse<GetUserVM>
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error
@@ -160,16 +179,31 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IBaseResponse<ICollection<Users>>> GetAll()
+    public async Task<IBaseResponse<ICollection<GetUserVM>>> GetAll()
     {
         try
         {
             var data = await _db.Users.ToListAsync();
             Log.Information("All users retrieved successfully");
+            var usersVM = new List<GetUserVM>();
 
-            return new BaseResponse<ICollection<Users>>
+            foreach (var item in data)
             {
-                Data = data,
+                var vm = new GetUserVM
+                {
+                    Id = item.Id,
+                    Email = item.Email,
+                    Password = item.Password,
+                    UserName = item.UserName,
+                };
+
+                usersVM.Add(vm);
+            }
+
+
+            return new BaseResponse<ICollection<GetUserVM>>
+            {
+                Data = usersVM,
                 Description = "Users successfully retrieved",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -177,7 +211,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while retrieving all users: {Message}", ex.Message);
-            return new BaseResponse<ICollection<Users>>
+            return new BaseResponse<ICollection<GetUserVM>>
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error
@@ -236,11 +270,11 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IBaseResponse<Users>> Register(AccountVM task)
+    public async Task<IBaseResponse<GetUserVM>> Register(RegisterVM task)
     {
         try
         {
-            var data = new Users()
+            var user = new Users()
             {
                 UserName = task.UserName,
                 Password = task.Password,
@@ -248,14 +282,20 @@ public class UserService : IUserService
                 CreateAt = DateTime.Now,
                 Role = Enum.Role.User
             };
-            await _db.Users.AddAsync(data);
+            await _db.Users.AddAsync(user);
             await _db.SaveChangesAsync();
-
+            var vm = new GetUserVM
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Password = user.Password,
+                UserName = user.UserName,
+            };
             Log.Information("User with UserName {UserName} registered successfully", task.UserName);
 
-            return new BaseResponse<Users>()
+            return new BaseResponse<GetUserVM>()
             {
-                Data = data,
+                Data = vm,
                 Description = "User registered successfully",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -263,7 +303,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while registering UserName {UserName}: {Message}", task.UserName, ex.Message);
-            return new BaseResponse<Users>()
+            return new BaseResponse<GetUserVM>()
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error
@@ -271,7 +311,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IBaseResponse<Users>> Remove(long id)
+    public async Task<IBaseResponse<GetUserVM>> Remove(long id)
     {
         try
         {
@@ -279,7 +319,7 @@ public class UserService : IUserService
             if (user == null)
             {
                 Log.Warning("User with Id {UserId} not found during removal", id);
-                return new BaseResponse<Users>
+                return new BaseResponse<GetUserVM>
                 {
                     Description = "User not found.",
                     StatusCode = Enum.StatusCode.NotFound
@@ -291,11 +331,18 @@ public class UserService : IUserService
             _db.Users.Update(user);
             await _db.SaveChangesAsync();
 
+            var vm = new GetUserVM
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Password = user.Password,
+                UserName = user.UserName,
+            };
             Log.Information("User with Id {UserId} removed successfully", id);
 
-            return new BaseResponse<Users>
+            return new BaseResponse<GetUserVM>
             {
-                Data = user,
+                Data = vm,
                 Description = "User removed successfully",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -303,7 +350,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while removing UserId {UserId}: {Message}", id, ex.Message);
-            return new BaseResponse<Users>
+            return new BaseResponse<GetUserVM>
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.UsersVMs;
+using TaskManager.ViewModels.RegisterVM;
 
 namespace TaskManager.Controllers;
 
@@ -17,7 +18,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(AccountVM task)
+    public async Task<IActionResult> Register(RegisterVM task)
     {
         if (!ModelState.IsValid)
         {
@@ -43,13 +44,11 @@ public class UserController : ControllerBase
         return BadRequest(res);
     }
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var res = _service.GetAll();
+        var res = await _service.GetAll();
         return Ok(res);
-
     }
-    
 
     [HttpDelete]
     public async Task<IActionResult> Remove(long id)
@@ -65,7 +64,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return Ok();
+        return Ok("LogOut successfully");
     }
     [HttpPut("ChangeRole")]
     public async Task<IActionResult> ChangeRole(long id)

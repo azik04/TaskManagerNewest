@@ -13,8 +13,10 @@ public class Tasks : BaseModel
     public DateTime DateOfCompletion { get; set; }
     public bool IsCompleted { get; set; }
     public long ExecutiveUserId { get; set; }
+
     public virtual Users ExecutiveUser { get; set; }
-    public ICollection<Files> Files { get; set; } = new List<Files>();
-    public Themes Theme { get; set; }
-    public ICollection<UserTask> UserTasks { get; set; } = new List<UserTask>();
+    public virtual Themes Theme { get; set; }
+    public virtual ICollection<Files> Files { get; set; } 
+    public virtual ICollection<UserTask> UserTasks { get; set; }
+    public virtual ICollection<Comment> Comments { get; set; }
 }

@@ -5,6 +5,9 @@ using TaskManager.Context;
 using TaskManager.Models;
 using TaskManager.Response;
 using TaskManager.Services.Interfaces;
+using TaskManager.ViewModels.Files;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using TaskManager.ViewModels.Themes;
 
 namespace TaskManager.Services.Implementations;
 
@@ -118,7 +121,7 @@ public class FileService : IFileService
         }
     }
 
-    public async Task<BaseResponse<ICollection<Files>>> ListFilesAsync(long taskId)
+    public async Task<BaseResponse<ICollection<GetFileVM>>> ListFilesAsync(long taskId)
     {
         try
         {
@@ -126,10 +129,17 @@ public class FileService : IFileService
                 .Where(f => f.TaskId == taskId && !f.IsDeleted)
                 .ToListAsync();
 
-            Log.Information("Retrieved {FileCount} files for TaskId: {TaskId}", files.Count, taskId);
-            return new BaseResponse<ICollection<Files>>
+            var fileVMs = files.Select(item => new GetFileVM
             {
-                Data = files,
+                Id = item.Id,
+                FileName = item.FileName,
+                TaskId = item.TaskId
+            }).ToList();
+
+            Log.Information("Retrieved {FileCount} files for TaskId: {TaskId}", files.Count, taskId);
+            return new BaseResponse<ICollection<GetFileVM>>
+            {
+                Data = fileVMs,
                 Description = "Files retrieved successfully.",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -137,7 +147,7 @@ public class FileService : IFileService
         catch (Exception ex)
         {
             Log.Error(ex, "Error retrieving files for TaskId: {TaskId}", taskId);
-            return new BaseResponse<ICollection<Files>>
+            return new BaseResponse<ICollection<GetFileVM>>
             {
                 Description = "Error retrieving files.",
                 StatusCode = Enum.StatusCode.Error

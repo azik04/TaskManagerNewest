@@ -3,7 +3,7 @@ using TaskManager.ViewModels.Files;
 
 namespace TaskManager.Validation;
 
-public class CreateFileVMValidator : AbstractValidator<FilesVM>
+public class CreateFileVMValidator : AbstractValidator<UploadFileVM>
 {
     public CreateFileVMValidator()
     {

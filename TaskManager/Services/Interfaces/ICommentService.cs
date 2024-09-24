@@ -6,7 +6,7 @@ namespace TaskManager.Services.Interfaces;
 
 public interface ICommentService
 {
-    public Task<IBaseResponse<ICollection<Comment>>> GetByTask(long taskId);
-    public Task<IBaseResponse<Comment>> Remove(long id);
-    public Task<IBaseResponse<Comment>> Create(CreateCommentVM comment);
+    public Task<IBaseResponse<ICollection<GetCommentVM>>> GetByTask(long taskId);
+    public Task<IBaseResponse<GetCommentVM>> Remove(long id);
+    public Task<IBaseResponse<GetCommentVM>> Create(CreateCommentVM comment);
 }

@@ -5,8 +5,8 @@ namespace TaskManager.Models;
 public class Comment : BaseModel
 {
     public string Message { get; set; }
-    public string UserName { get; set; }
-    public Users User { get; set; }
+    public long UserId { get; set; }
     public long TaskId { get; set; } 
-    public Tasks Tasks { get; set; }
+    public virtual Users User { get; set; }
+    public virtual Tasks Tasks { get; set; }
 }

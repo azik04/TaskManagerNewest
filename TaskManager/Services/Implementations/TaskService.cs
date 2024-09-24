@@ -23,6 +23,7 @@ public class TaskService : ITaskService
     {
         try
         {
+
             var data = new Tasks
             {
                 TaskName = task.TaskName,
@@ -340,7 +341,7 @@ public class TaskService : ITaskService
     {
         var tasks = await _db.Tasks
             .Where(x => !x.IsDeleted && x.IsCompleted && x.ThemeId == themeId)
-            .Include(x => x.ExecutiveUser) // Include the ExecutiveUser navigation property
+            .Include(x => x.ExecutiveUser)
             .ToListAsync();
 
         var taskViewModels = tasks.Select(item => new GetTaskVM
@@ -354,10 +355,9 @@ public class TaskService : ITaskService
             DateOfCompletion = item.DateOfCompletion,
             CreateDate = item.CreateAt,
             IsCompleted = item.IsCompleted,
-            IsDeleted = item.IsDeleted, // Include this if needed
+            IsDeleted = item.IsDeleted, 
             ThemeId = item.ThemeId,
             ExecutiveUserId = item.ExecutiveUserId,
-            Users = item.ExecutiveUser // This provides the Users object
         }).ToList();
 
         Log.Information("Retrieved all completed tasks for theme Id {ThemeId} successfully", themeId);
@@ -386,8 +386,8 @@ public class TaskService : ITaskService
         try
         {
             var tasks = await _db.Tasks
-               .Where(x => !x.IsDeleted && !x.IsCompleted && x.ThemeId == themeId)
-               .ToListAsync();
+                .Where(x => !x.IsDeleted && !x.IsCompleted && x.ThemeId == themeId)
+                .ToListAsync();
 
             var taskViewModels = tasks.Select(item => new GetTaskVM
             {
@@ -402,7 +402,6 @@ public class TaskService : ITaskService
                 IsCompleted = item.IsCompleted,
                 ThemeId = item.ThemeId,
                 ExecutiveUserId = item.ExecutiveUserId,
-
             }).ToList();
 
             Log.Information("Retrieved all not completed tasks for theme Id {ThemeId} successfully", themeId);

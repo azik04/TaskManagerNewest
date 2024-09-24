@@ -3,7 +3,7 @@ using TaskManager.ViewModels.Themes;
 
 namespace TaskManager.Validation;
 
-public class CreateThemeVMValidator : AbstractValidator<ThemeVM>
+public class CreateThemeVMValidator : AbstractValidator<GetThemeVM>
 {
     public CreateThemeVMValidator()
     {

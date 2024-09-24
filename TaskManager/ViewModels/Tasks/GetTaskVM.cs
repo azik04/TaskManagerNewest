@@ -18,6 +18,5 @@ namespace TaskManager.ViewModels.Tasks
         public bool IsDeleted { get; set; }
         public long ThemeId { get; set; }
         public long ExecutiveUserId { get; set; }
-        public Users Users { get; set; }
     }
 }

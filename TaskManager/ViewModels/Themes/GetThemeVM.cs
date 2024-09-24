@@ -1,6 +1,6 @@
 ﻿namespace TaskManager.ViewModels.Themes;
 
-public class ThemeVM
+public class GetThemeVM
 {
     public long id { get; set; }
     public string Name { get; set; }

@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
+using TaskManager.ViewModels.RegisterVM;
 using TaskManager.ViewModels.UsersVMs;
 
 namespace TaskManager.Validation;
 
-public class RegisterVMValidator : AbstractValidator<AccountVM>
+public class RegisterVMValidator : AbstractValidator<RegisterVM>
 {
     public RegisterVMValidator()
     {

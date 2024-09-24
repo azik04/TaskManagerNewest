@@ -17,7 +17,7 @@ public class ThemeService : IThemeService
         _db = db;
     }
 
-    public async Task<IBaseResponse<Themes>> Create(ThemeVM theme)
+    public async Task<IBaseResponse<GetThemeVM>> Create(CreateThemeVM theme)
     {
         try
         {
@@ -31,41 +31,47 @@ public class ThemeService : IThemeService
             await _db.Themes.AddAsync(data);
             await _db.SaveChangesAsync();
 
+            var vm = new GetThemeVM()
+            {
+                id = data.Id, 
+                Name = theme.Name,
+                UserId = theme.UserId,
+            };
             Log.Information("Theme {ThemeId} created successfully", data.Id);
 
-            return new BaseResponse<Themes>()
+            return new BaseResponse<GetThemeVM>()
             {
-                Data = data,
+                Data = vm,
                 Description = $"Theme: {data.Id} has been successfully created",
                 StatusCode = Enum.StatusCode.OK
             };
         }
-        catch (Exception ex)
+        catch (DbUpdateException dbEx)
         {
-            Log.Error(ex, "Error occurred while creating theme: {Message}", ex.Message);
-            return new BaseResponse<Themes>()
+            Log.Error(dbEx, "Database update error: {Message}, Inner Exception: {InnerException}", dbEx.Message, dbEx.InnerException?.Message);
+            return new BaseResponse<GetThemeVM>()
             {
-                Description = ex.Message,
+                Description = dbEx.InnerException?.Message ?? dbEx.Message,
                 StatusCode = Enum.StatusCode.Error
             };
         }
     }
 
-    public async Task<IBaseResponse<ICollection<ThemeVM>>> GetAll()
+    public async Task<IBaseResponse<ICollection<GetThemeVM>>> GetAll()
     {
         try
         {
             var data = await _db.Themes.ToListAsync();
-            var themeVMs = data.Select(item => new ThemeVM
+            var themeVMs = data.Select(item => new GetThemeVM
             {
-                Name = item.Name,
                 id = item.Id,
+                Name = item.Name,
                 UserId = item.UserId,
             }).ToList();
 
             Log.Information("Retrieved all themes successfully");
 
-            return new BaseResponse<ICollection<ThemeVM>>()
+            return new BaseResponse<ICollection<GetThemeVM>>()
             {
                 Data = themeVMs,
                 Description = "Themes successfully retrieved",
@@ -75,7 +81,7 @@ public class ThemeService : IThemeService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while retrieving themes: {Message}", ex.Message);
-            return new BaseResponse<ICollection<ThemeVM>>()
+            return new BaseResponse<ICollection<GetThemeVM>>()
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error
@@ -83,7 +89,7 @@ public class ThemeService : IThemeService
         }
     }
 
-    public async Task<IBaseResponse<ThemeVM>> GetById(long id)
+    public async Task<IBaseResponse<GetThemeVM>> GetById(long id)
     {
         try
         {
@@ -91,23 +97,23 @@ public class ThemeService : IThemeService
             if (theme == null)
             {
                 Log.Warning("Theme with Id {ThemeId} was not found", id);
-                return new BaseResponse<ThemeVM>
+                return new BaseResponse<GetThemeVM>
                 {
                     StatusCode = Enum.StatusCode.NotFound,
                     Description = $"Theme with Id {id} was not found."
                 };
             }
 
-            var vm = new ThemeVM()
+            var vm = new GetThemeVM()
             {
-                Name = theme.Name,
                 id = theme.Id,
+                Name = theme.Name,
                 UserId = theme.UserId,
             };
 
             Log.Information("Theme with Id {ThemeId} retrieved successfully", theme.Id);
 
-            return new BaseResponse<ThemeVM>
+            return new BaseResponse<GetThemeVM>
             {
                 Data = vm,
                 StatusCode = Enum.StatusCode.OK,
@@ -117,7 +123,7 @@ public class ThemeService : IThemeService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while retrieving theme with Id {ThemeId}: {Message}", id, ex.Message);
-            return new BaseResponse<ThemeVM>
+            return new BaseResponse<GetThemeVM>
             {
                 StatusCode = Enum.StatusCode.Error,
                 Description = $"An error occurred while retrieving the theme: {ex.Message}"
@@ -125,21 +131,21 @@ public class ThemeService : IThemeService
         }
     }
 
-    public async Task<IBaseResponse<ICollection<ThemeVM>>> GetByUser(long userId)
+    public async Task<IBaseResponse<ICollection<GetThemeVM>>> GetByUser(long userId)
     {
         try
         {
             var data = await _db.Themes.Where(x => x.UserId == userId).ToListAsync();
-            var themeVMs = data.Select(item => new ThemeVM
+            var themeVMs = data.Select(item => new GetThemeVM
             {
-                Name = item.Name,
                 id = item.Id,
+                Name = item.Name,
                 UserId = item.UserId,
             }).ToList();
 
             Log.Information("Retrieved all themes for UserId {UserId} successfully", userId);
 
-            return new BaseResponse<ICollection<ThemeVM>>()
+            return new BaseResponse<ICollection<GetThemeVM>>()
             {
                 Data = themeVMs,
                 Description = "Themes successfully retrieved",
@@ -149,7 +155,7 @@ public class ThemeService : IThemeService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while retrieving themes for UserId {UserId}: {Message}", userId, ex.Message);
-            return new BaseResponse<ICollection<ThemeVM>>()
+            return new BaseResponse<ICollection<GetThemeVM>>()
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error
@@ -157,7 +163,7 @@ public class ThemeService : IThemeService
         }
     }
 
-    public async Task<IBaseResponse<Themes>> Remove(long id)
+    public async Task<IBaseResponse<GetThemeVM>> Remove(long id)
     {
         try
         {
@@ -165,18 +171,11 @@ public class ThemeService : IThemeService
             if (theme == null)
             {
                 Log.Warning("Theme with Id {ThemeId} not found for removal", id);
-                return new BaseResponse<Themes>
+                return new BaseResponse<GetThemeVM>
                 {
                     StatusCode = Enum.StatusCode.NotFound,
                     Description = $"Theme with Id {id} not found."
                 };
-            }
-
-            var task = await _db.Tasks.Where(x => x.ThemeId == id).ToListAsync();
-            foreach (var item in task)
-            {
-                item.IsDeleted = true;
-                item.DeletedAt = DateTime.Now;
             }
 
             theme.IsDeleted = true;
@@ -184,11 +183,17 @@ public class ThemeService : IThemeService
             _db.Themes.Remove(theme);
             await _db.SaveChangesAsync();
 
+            var vm = new GetThemeVM()
+            {
+                id = theme.Id,
+                Name = theme.Name,
+                UserId = theme.UserId,
+            };
             Log.Information("Theme with Id {ThemeId} has been successfully removed", theme.Id);
 
-            return new BaseResponse<Themes>
+            return new BaseResponse<GetThemeVM>
             {
-                Data = theme,
+                Data = vm,
                 StatusCode = Enum.StatusCode.OK,
                 Description = $"Theme with Id {theme.Id} has been successfully removed."
             };
@@ -196,7 +201,7 @@ public class ThemeService : IThemeService
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while removing theme with Id {ThemeId}: {Message}", id, ex.Message);
-            return new BaseResponse<Themes>
+            return new BaseResponse<GetThemeVM>
             {
                 StatusCode = Enum.StatusCode.Error,
                 Description = $"An error occurred while removing the theme: {ex.Message}"

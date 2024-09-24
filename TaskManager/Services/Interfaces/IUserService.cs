@@ -1,16 +1,16 @@
-﻿using TaskManager.Models;
-using TaskManager.Response;
+﻿using TaskManager.Response;
+using TaskManager.ViewModels.RegisterVM;
 using TaskManager.ViewModels.UsersVMs;
 
 namespace TaskManager.Services.Interfaces;
 
 public interface IUserService
 {
-    public Task<IBaseResponse<Users>> Register(AccountVM task);
+    public Task<IBaseResponse<GetUserVM>> Register(RegisterVM task);
     public Task<IBaseResponse<string>> LogIn(LogInVM task);
-    public Task<IBaseResponse<ICollection<Users>>> GetAll();
-    public Task<IBaseResponse<Users>> Remove(long id);
-    public Task<IBaseResponse<Users>> ChangeRole(long id);
-    public Task<IBaseResponse<Users>> ChangePassword(long userId, ChangePasswordVM changePassword);
-    public Task<IBaseResponse<Users>> ChangeEmail(long userId, ChangeEmail changePassword);
+    public Task<IBaseResponse<ICollection<GetUserVM>>> GetAll();
+    public Task<IBaseResponse<GetUserVM>> Remove(long id);
+    public Task<IBaseResponse<GetUserVM>> ChangeRole(long id);
+    public Task<IBaseResponse<GetUserVM>> ChangePassword(long userId, ChangePasswordVM changePassword);
+    public Task<IBaseResponse<GetUserVM>> ChangeEmail(long userId, ChangeEmail changePassword);
 }

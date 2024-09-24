@@ -18,7 +18,7 @@ public class ThemeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(ThemeVM task)
+    public async Task<IActionResult> Create(CreateThemeVM task)
     {
         if (!ModelState.IsValid)
         {
@@ -33,14 +33,14 @@ public class ThemeController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var res = _service.GetAll();
+        var res = await _service.GetAll();
         return Ok(res);
 
     }
     [HttpGet("userId/{id}")]
     public async Task<IActionResult> GetByUser(long id)
     {
-        var res = _service.GetByUser(id);
+        var res = await _service.GetByUser(id);
         return Ok(res);
 
     }

@@ -5,6 +5,8 @@ using TaskManager.Models;
 using TaskManager.Response;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Comments;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using TaskManager.ViewModels.Themes;
 
 namespace TaskManager.Services.Implementations;
 
@@ -17,42 +19,81 @@ public class CommentService : ICommentService
         _db = db;
     }
 
-    public async Task<IBaseResponse<Comment>> Create(CreateCommentVM comment)
+    public async Task<IBaseResponse<GetCommentVM>> Create(CreateCommentVM comment)
     {
         try
         {
+            // Validate TaskId
+            var taskExists = await _db.Tasks.AnyAsync(t => t.Id == comment.TaskId);
+            if (!taskExists)
+            {
+                return new BaseResponse<GetCommentVM>
+                {
+                    Description = "Invalid TaskId.",
+                    StatusCode = Enum.StatusCode.Error
+                };
+            }
+
+            // Validate UserId
+            var userExists = await _db.Users.AnyAsync(u => u.Id == comment.UserId);
+            if (!userExists)
+            {
+                return new BaseResponse<GetCommentVM>
+                {
+                    Description = "Invalid UserId.",
+                    StatusCode = Enum.StatusCode.Error
+                };
+            }
+
             var com = new Comment()
             {
                 Message = comment.Message,
                 TaskId = comment.TaskId,
-                UserName = comment.UserName,
+                UserId = comment.UserId,
                 CreateAt = DateTime.Now,
             };
 
             await _db.Comments.AddAsync(com);
             await _db.SaveChangesAsync();
 
+            var vm = new GetCommentVM()
+            {
+                Id = com.Id,
+                Message = com.Message,
+                TaskId = com.TaskId,
+                UserId = com.UserId,
+            };
             Log.Information("Comment with Id {CommentId} has been successfully created.", com.Id);
 
-            return new BaseResponse<Comment>()
+            return new BaseResponse<GetCommentVM>()
             {
-                Data = com,
-                Description = $"Comment:{com.Id} has been successfully created.",
+                Data = vm,
+                Description = $"Comment: {com.Id} has been successfully created.",
                 StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (DbUpdateException dbEx)
+        {
+            Log.Error(dbEx, "Database update error: {Message}", dbEx.InnerException?.Message ?? dbEx.Message);
+            return new BaseResponse<GetCommentVM>
+            {
+                Description = dbEx.InnerException?.Message ?? dbEx.Message,
+                StatusCode = Enum.StatusCode.Error
             };
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error creating comment: {Message}", ex.Message);
-            return new BaseResponse<Comment>()
+            return new BaseResponse<GetCommentVM>()
             {
-                Description = ex.Message,
+                Description = ex.InnerException?.Message ?? ex.Message,
                 StatusCode = Enum.StatusCode.Error
             };
         }
     }
 
-    public async Task<IBaseResponse<ICollection<Comment>>> GetByTask(long taskId)
+
+    public async Task<IBaseResponse<ICollection<GetCommentVM>>> GetByTask(long taskId)
     {
         try
         {
@@ -60,11 +101,19 @@ public class CommentService : ICommentService
                 .Where(c => c.TaskId == taskId && !c.IsDeleted)
                 .ToListAsync();
 
+            var commentVMs = comments.Select(item => new GetCommentVM
+            {
+                Id = item.Id,
+                Message = item.Message,
+                UserId = item.UserId,
+                TaskId = item.TaskId
+            }).ToList();
+
             Log.Information("Retrieved {CommentCount} comments for task with Id {TaskId}.", comments.Count, taskId);
 
-            return new BaseResponse<ICollection<Comment>>
+            return new BaseResponse<ICollection<GetCommentVM>>
             {
-                Data = comments,
+                Data = commentVMs,
                 Description = "Comments retrieved successfully.",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -72,7 +121,7 @@ public class CommentService : ICommentService
         catch (Exception ex)
         {
             Log.Error(ex, "Error retrieving comments for task with Id {TaskId}: {Message}", taskId, ex.Message);
-            return new BaseResponse<ICollection<Comment>>
+            return new BaseResponse<ICollection<GetCommentVM>>
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error
@@ -80,7 +129,7 @@ public class CommentService : ICommentService
         }
     }
 
-    public async Task<IBaseResponse<Comment>> Remove(long id)
+    public async Task<IBaseResponse<GetCommentVM>> Remove(long id)
     {
         try
         {
@@ -88,21 +137,30 @@ public class CommentService : ICommentService
             if (con == null)
             {
                 Log.Warning("Attempted to remove a comment with Id {CommentId} that does not exist.", id);
-                return new BaseResponse<Comment>
+                return new BaseResponse<GetCommentVM>
                 {
                     Description = "Comment not found.",
                     StatusCode = Enum.StatusCode.NotFound
                 };
             }
+
             con.DeletedAt = DateTime.Now;
             con.IsDeleted = true;
             _db.Comments.Remove(con);
             await _db.SaveChangesAsync();
 
-            Log.Information("Comment with Id {CommentId} has been removed successfully.", id);
-            return new BaseResponse<Comment>
+            var vm = new GetCommentVM()
             {
-                Data = con,
+                Id = con.Id,
+                Message = con.Message,
+                TaskId = con.TaskId,
+                UserId = con.UserId,
+            };
+
+            Log.Information("Comment with Id {CommentId} has been removed successfully.", id);
+            return new BaseResponse<GetCommentVM>
+            {
+                Data = vm,
                 Description = "Comment removed successfully.",
                 StatusCode = Enum.StatusCode.OK
             };
@@ -110,7 +168,7 @@ public class CommentService : ICommentService
         catch (Exception ex)
         {
             Log.Error(ex, "Error removing comment with Id {CommentId}: {Message}", id, ex.Message);
-            return new BaseResponse<Comment>()
+            return new BaseResponse<GetCommentVM>()
             {
                 Description = ex.Message,
                 StatusCode = Enum.StatusCode.Error

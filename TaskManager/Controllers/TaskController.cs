@@ -31,23 +31,23 @@ public class TaskController : ControllerBase
         return BadRequest(res);
     }
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var res = _service.GetAll(); 
+        var res = await _service.GetAll(); 
             return Ok(res);
         
     }
     [HttpGet("done")]
-    public IActionResult GetAllDone(long themeId)
+    public async Task<IActionResult> GetAllDone(long themeId)
     {
-        var res = _service.GetAllDone(themeId);
+        var res = await _service.GetAllDone(themeId);
         return Ok(res);
 
     }
     [HttpGet("notdone")]
     public async Task<IActionResult> GetAllNotDone(long themeId)
     {
-        var res = _service.GetAllNotDone(themeId);
+        var res = await _service.GetAllNotDone(themeId);
         return Ok(res);
 
     }
