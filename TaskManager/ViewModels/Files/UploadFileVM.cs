@@ -1,4 +1,4 @@
-﻿namespace TaskManager.ViewModels;
+﻿namespace TaskManager.ViewModels.Files;
 
 public class UploadFileVM
 {

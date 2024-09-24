@@ -1,6 +1,6 @@
 ﻿using TaskManager.Models;
 using TaskManager.Response;
-using TaskManager.ViewModels.Users;
+using TaskManager.ViewModels.UsersVMs;
 
 namespace TaskManager.Services.Interfaces;
 

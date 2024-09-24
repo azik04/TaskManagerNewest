@@ -98,6 +98,7 @@ public class FileService : IFileService
             }
 
             fileRecord.IsDeleted = true;
+            fileRecord.DeletedAt = DateTime.Now;
             _dbContext.Files.Update(fileRecord);
             await _dbContext.SaveChangesAsync();
 

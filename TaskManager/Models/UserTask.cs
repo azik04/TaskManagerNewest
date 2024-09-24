@@ -1,6 +1,8 @@
-﻿namespace TaskManager.Models;
+﻿using TaskManager.Models.Base;
 
-public class UserTask
+namespace TaskManager.Models;
+
+public class UserTask : BaseModel
 {
     public long TaskId { get; set; }
     public Tasks Task { get; set; }

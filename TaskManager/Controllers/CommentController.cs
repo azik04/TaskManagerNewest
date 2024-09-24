@@ -3,6 +3,7 @@ using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Comments;
 
 namespace TaskManager.Controllers;
+
 [Route("api/[controller]")]
 [ApiController]
 public class CommentController : ControllerBase
@@ -15,9 +16,9 @@ public class CommentController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetByTask(long id)
+    public async Task<IActionResult> GetByTask(long taskId)
     {
-        var res = await _service.GetByTask(id);
+        var res = await _service.GetByTask(taskId);
         return Ok(res);
     }
 

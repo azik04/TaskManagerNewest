@@ -57,7 +57,7 @@ public class CommentService : ICommentService
         try
         {
             var comments = await _db.Comments
-                .Where(c => c.TaskId == taskId)
+                .Where(c => c.TaskId == taskId && !c.IsDeleted)
                 .ToListAsync();
 
             Log.Information("Retrieved {CommentCount} comments for task with Id {TaskId}.", comments.Count, taskId);
@@ -94,7 +94,8 @@ public class CommentService : ICommentService
                     StatusCode = Enum.StatusCode.NotFound
                 };
             }
-
+            con.DeletedAt = DateTime.Now;
+            con.IsDeleted = true;
             _db.Comments.Remove(con);
             await _db.SaveChangesAsync();
 

@@ -8,7 +8,7 @@ using TaskManager.Context;
 using TaskManager.Models;
 using TaskManager.Response;
 using TaskManager.Services.Interfaces;
-using TaskManager.ViewModels.Users;
+using TaskManager.ViewModels.UsersVMs;
 
 namespace TaskManager.Services.Implementations;
 
@@ -189,7 +189,7 @@ public class UserService : IUserService
     {
         try
         {
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.UserName == task.UserName && !x.isDeleted);
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.UserName == task.UserName && !x.IsDeleted);
             if (user == null || task.Password != user.Password)
             {
                 Log.Warning("Login failed for UserName {UserName}: Invalid username or password", task.UserName);
@@ -245,6 +245,7 @@ public class UserService : IUserService
                 UserName = task.UserName,
                 Password = task.Password,
                 Email = task.Email,
+                CreateAt = DateTime.Now,
                 Role = Enum.Role.User
             };
             await _db.Users.AddAsync(data);
@@ -285,7 +286,8 @@ public class UserService : IUserService
                 };
             }
 
-            user.isDeleted = true;
+            user.IsDeleted = true;
+            user.DeletedAt = DateTime.Now;
             _db.Users.Update(user);
             await _db.SaveChangesAsync();
 

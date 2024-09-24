@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using TaskManager.ViewModels.Users;
+using TaskManager.ViewModels.UsersVMs;
 
 namespace TaskManager.Validation;
 

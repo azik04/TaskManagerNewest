@@ -45,7 +45,7 @@ public class TaskController : ControllerBase
 
     }
     [HttpGet("notdone")]
-    public IActionResult GetAllNotDone(long themeId)
+    public async Task<IActionResult> GetAllNotDone(long themeId)
     {
         var res = _service.GetAllNotDone(themeId);
         return Ok(res);

@@ -1,12 +1,12 @@
-﻿namespace TaskManager.Models;
+﻿using TaskManager.Models.Base;
 
-public class Comment
+namespace TaskManager.Models;
+
+public class Comment : BaseModel
 {
-    public long Id { get; set; }
     public string Message { get; set; }
-    public Users User { get; set; }
     public string UserName { get; set; }
+    public Users User { get; set; }
     public long TaskId { get; set; } 
-    public DateTime CreateAt { get; set; }
     public Tasks Tasks { get; set; }
 }

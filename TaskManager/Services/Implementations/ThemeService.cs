@@ -24,6 +24,7 @@ public class ThemeService : IThemeService
             var data = new Themes()
             {
                 Name = theme.Name,
+                CreateAt = DateTime.Now,
                 UserId = theme.UserId,
             };
 
@@ -171,13 +172,15 @@ public class ThemeService : IThemeService
                 };
             }
 
-            var files = await _db.Files.Where(x => x.TaskId == id).ToListAsync();
-            foreach (var file in files)
+            var task = await _db.Tasks.Where(x => x.ThemeId == id).ToListAsync();
+            foreach (var item in task)
             {
-                file.IsDeleted = true;
+                item.IsDeleted = true;
+                item.DeletedAt = DateTime.Now;
             }
 
             theme.IsDeleted = true;
+            theme.DeletedAt = DateTime.Now;
             _db.Themes.Remove(theme);
             await _db.SaveChangesAsync();
 

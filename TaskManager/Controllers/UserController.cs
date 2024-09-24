@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Services.Interfaces;
-using TaskManager.ViewModels.Users;
+using TaskManager.ViewModels.UsersVMs;
 
 namespace TaskManager.Controllers;
 

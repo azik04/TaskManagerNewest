@@ -31,15 +31,15 @@ public class ThemeController : ControllerBase
         return BadRequest(res);
     }
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
         var res = _service.GetAll();
         return Ok(res);
 
     }
     [HttpGet("userId/{id}")]
-    public IActionResult GetByUser(long id)
-   {
+    public async Task<IActionResult> GetByUser(long id)
+    {
         var res = _service.GetByUser(id);
         return Ok(res);
 

@@ -8,5 +8,7 @@ public class CreateTaskVM
     public string Priority { get; set; }
     public long ThemeId { get; set; }
     public string DeadLine { get; set; }
+    public long ExecutiveUserId { get; set; }
+
 
 }

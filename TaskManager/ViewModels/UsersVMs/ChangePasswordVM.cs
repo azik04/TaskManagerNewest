@@ -1,4 +1,4 @@
-﻿namespace TaskManager.ViewModels.Users;
+﻿namespace TaskManager.ViewModels.UsersVMs;
 
 public class ChangePasswordVM
 {

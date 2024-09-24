@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Threading.Tasks;
 using TaskManager.Context;
 using TaskManager.Models;
 using TaskManager.Response;
@@ -26,11 +27,12 @@ public class TaskService : ITaskService
             {
                 TaskName = task.TaskName,
                 TaskDescription = task.TaskDescription,
-                CreateDate = DateTime.Now,
+                CreateAt = DateTime.Now,
                 Status = task.Status,
                 DeadLine = task.DeadLine,
                 Priority = task.Priority,
-                ThemeId = task.ThemeId
+                ThemeId = task.ThemeId,
+                ExecutiveUserId = task.ExecutiveUserId,
             };
 
             await _db.Tasks.AddAsync(data);
@@ -45,11 +47,8 @@ public class TaskService : ITaskService
                 Priority = data.Priority,
                 DeadLine = data.DeadLine,
                 ThemeId = data.ThemeId,
-                Files = data.Files.Select(f => new FilesVM
-                {
-                    Id = f.Id,
-                    File = f.FileName
-                }).ToList(),
+                ExecutiveUserId = data.ExecutiveUserId,
+
             };
             Log.Information("Task {TaskId} created successfully", taskDTO.Id);
             return new BaseResponse<GetTaskVM>
@@ -88,15 +87,11 @@ public class TaskService : ITaskService
                 Priority = item.Priority,
                 DeadLine = item.DeadLine,
                 DateOfCompletion = item.DateOfCompletion,
-                CreateDate = item.CreateDate,
+                CreateDate = item.CreateAt,
                 IsCompleted = item.IsCompleted,
                 ThemeId = item.ThemeId,
-                Files = item.Files.Select(f => new FilesVM
-                {
-                    Id = f.Id,
-                    File = f.FileName,
-                    IsDeleted = f.IsDeleted
-                }).ToList()
+                ExecutiveUserId = item.ExecutiveUserId,
+
             }).ToList();
 
             Log.Information("Retrieved all tasks successfully");
@@ -145,15 +140,10 @@ public class TaskService : ITaskService
                 Priority = task.Priority,
                 DeadLine = task.DeadLine,
                 DateOfCompletion = task.DateOfCompletion,
-                CreateDate = task.CreateDate,
+                CreateDate = task.CreateAt,
                 IsCompleted = task.IsCompleted,
                 ThemeId = task.ThemeId,
-                Files = task.Files.Select(f => new FilesVM
-                {
-                    Id = f.Id,
-                    File = f.FileName,
-                    IsDeleted = f.IsDeleted
-                }).ToList()
+                ExecutiveUserId = task.ExecutiveUserId,
             };
 
             Log.Information("Task with Id {TaskId} retrieved successfully", task.Id);
@@ -191,6 +181,7 @@ public class TaskService : ITaskService
             }
 
             task.IsDeleted = true;
+            task.DeletedAt = DateTime.Now;
             _db.Tasks.Remove(task);
             await _db.SaveChangesAsync();
 
@@ -203,15 +194,11 @@ public class TaskService : ITaskService
                 Priority = task.Priority,
                 DeadLine = task.DeadLine,
                 DateOfCompletion = task.DateOfCompletion,
-                CreateDate = task.CreateDate,
+                CreateDate = task.CreateAt,
                 IsCompleted = task.IsCompleted,
                 ThemeId = task.ThemeId,
-                Files = task.Files.Select(f => new FilesVM
-                {
-                    Id = f.Id,
-                    File = f.FileName,
-                    IsDeleted = f.IsDeleted
-                }).ToList()
+                ExecutiveUserId = task.ExecutiveUserId,
+
             };
 
             Log.Information("Task with Id {TaskId} has been successfully removed", task.Id);
@@ -266,15 +253,11 @@ public class TaskService : ITaskService
                 Priority = task.Priority,
                 DeadLine = task.DeadLine,
                 DateOfCompletion = task.DateOfCompletion,
-                CreateDate = task.CreateDate,
+                CreateDate = task.CreateAt,
                 IsCompleted = task.IsCompleted,
                 ThemeId = task.ThemeId,
-                Files = task.Files.Select(f => new FilesVM
-                {
-                    Id = f.Id,
-                    File = f.FileName,
-                    IsDeleted = f.IsDeleted
-                }).ToList()
+                ExecutiveUserId = task.ExecutiveUserId,
+
             };
 
             Log.Information("Task with Id {TaskId} has been successfully updated", task.Id);
@@ -325,15 +308,11 @@ public class TaskService : ITaskService
                 Priority = task.Priority,
                 DeadLine = task.DeadLine,
                 DateOfCompletion = task.DateOfCompletion,
-                CreateDate = task.CreateDate,
+                CreateDate = task.CreateAt,
                 IsCompleted = task.IsCompleted,
                 ThemeId = task.ThemeId,
-                Files = task.Files.Select(f => new FilesVM
-                {
-                    Id = f.Id,
-                    File = f.FileName,
-                    IsDeleted = f.IsDeleted
-                }).ToList()
+                ExecutiveUserId = task.ExecutiveUserId,
+
             };
 
             Log.Information("Task with Id {TaskId} has been marked as completed", task.Id);
@@ -356,52 +335,51 @@ public class TaskService : ITaskService
     }
 
     public async Task<IBaseResponse<ICollection<GetTaskVM>>> GetAllDone(long themeId)
+{
+    try
     {
-        try
-        {
-            var tasks = await _db.Tasks
-                .Where(x => !x.IsDeleted && x.IsCompleted && x.ThemeId == themeId)
-                .Include(x => x.Files)
-                .ToListAsync();
+        var tasks = await _db.Tasks
+            .Where(x => !x.IsDeleted && x.IsCompleted && x.ThemeId == themeId)
+            .Include(x => x.ExecutiveUser) // Include the ExecutiveUser navigation property
+            .ToListAsync();
 
-            var taskViewModels = tasks.Select(item => new GetTaskVM
-            {
-                Id = item.Id,
-                TaskName = item.TaskName,
-                TaskDescription = item.TaskDescription,
-                Status = item.Status,
-                Priority = item.Priority,
-                DeadLine = item.DeadLine,
-                DateOfCompletion = item.DateOfCompletion,
-                CreateDate = item.CreateDate,
-                IsCompleted = item.IsCompleted,
-                ThemeId = item.ThemeId,
-                Files = item.Files.Select(f => new FilesVM
-                {
-                    Id = f.Id,
-                    File = f.FileName,
-                    IsDeleted = f.IsDeleted
-                }).ToList()
-            }).ToList();
-
-            Log.Information("Retrieved all completed tasks for theme Id {ThemeId} successfully", themeId);
-            return new BaseResponse<ICollection<GetTaskVM>>
-            {
-                Data = taskViewModels,
-                StatusCode = Enum.StatusCode.OK,
-                Description = "All completed tasks have been successfully retrieved."
-            };
-        }
-        catch (Exception ex)
+        var taskViewModels = tasks.Select(item => new GetTaskVM
         {
-            Log.Error(ex, "Error occurred while retrieving completed tasks for theme Id {ThemeId}: {Message}", themeId, ex.Message);
-            return new BaseResponse<ICollection<GetTaskVM>>
-            {
-                StatusCode = Enum.StatusCode.Error,
-                Description = $"An error occurred while retrieving completed tasks: {ex.Message}"
-            };
-        }
+            Id = item.Id,
+            TaskName = item.TaskName,
+            TaskDescription = item.TaskDescription,
+            Status = item.Status,
+            Priority = item.Priority,
+            DeadLine = item.DeadLine,
+            DateOfCompletion = item.DateOfCompletion,
+            CreateDate = item.CreateAt,
+            IsCompleted = item.IsCompleted,
+            IsDeleted = item.IsDeleted, // Include this if needed
+            ThemeId = item.ThemeId,
+            ExecutiveUserId = item.ExecutiveUserId,
+            Users = item.ExecutiveUser // This provides the Users object
+        }).ToList();
+
+        Log.Information("Retrieved all completed tasks for theme Id {ThemeId} successfully", themeId);
+        return new BaseResponse<ICollection<GetTaskVM>>
+        {
+            Data = taskViewModels,
+            StatusCode = Enum.StatusCode.OK,
+            Description = "All completed tasks have been successfully retrieved."
+        };
     }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error occurred while retrieving completed tasks for theme Id {ThemeId}: {Message}", themeId, ex.Message);
+        return new BaseResponse<ICollection<GetTaskVM>>
+        {
+            StatusCode = Enum.StatusCode.Error,
+            Description = $"An error occurred while retrieving completed tasks: {ex.Message}"
+        };
+    }
+}
+
+
 
     public async Task<IBaseResponse<ICollection<GetTaskVM>>> GetAllNotDone(long themeId)
     {
@@ -409,7 +387,6 @@ public class TaskService : ITaskService
         {
             var tasks = await _db.Tasks
                .Where(x => !x.IsDeleted && !x.IsCompleted && x.ThemeId == themeId)
-               .Include(x => x.Files)
                .ToListAsync();
 
             var taskViewModels = tasks.Select(item => new GetTaskVM
@@ -421,15 +398,11 @@ public class TaskService : ITaskService
                 Priority = item.Priority,
                 DeadLine = item.DeadLine,
                 DateOfCompletion = item.DateOfCompletion,
-                CreateDate = item.CreateDate,
+                CreateDate = item.CreateAt,
                 IsCompleted = item.IsCompleted,
                 ThemeId = item.ThemeId,
-                Files = item.Files.Select(f => new FilesVM
-                {
-                    Id = f.Id,
-                    File = f.FileName,
-                    IsDeleted = f.IsDeleted
-                }).ToList()
+                ExecutiveUserId = item.ExecutiveUserId,
+
             }).ToList();
 
             Log.Information("Retrieved all not completed tasks for theme Id {ThemeId} successfully", themeId);

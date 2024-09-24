@@ -1,4 +1,6 @@
-﻿using TaskManager.ViewModels.Files;
+﻿
+
+using TaskManager.Models;
 
 namespace TaskManager.ViewModels.Tasks
 {
@@ -14,7 +16,8 @@ namespace TaskManager.ViewModels.Tasks
         public DateTime CreateDate { get; set; }
         public bool IsCompleted { get; set; }
         public bool IsDeleted { get; set; }
-        public ICollection<FilesVM> Files { get; set; }
         public long ThemeId { get; set; }
+        public long ExecutiveUserId { get; set; }
+        public Users Users { get; set; }
     }
 }

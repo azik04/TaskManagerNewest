@@ -1,14 +1,12 @@
-﻿namespace TaskManager.Models;
+﻿using TaskManager.Models.Base;
 
-public class Files
+namespace TaskManager.Models;
+
+public class Files : BaseModel
 {
-    public long Id { get; set; }
     public string FileName { get; set; } 
 
-    // Foreign key for Task
     public long TaskId { get; set; }
     public Tasks Task { get; set; }
 
-    public bool IsDeleted { get; set; }
-    public DateTime CreateAt { get; set; }
 }

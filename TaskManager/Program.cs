@@ -51,7 +51,7 @@ builder.Services.AddScoped<IThemeService, ThemeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IFileService, FileService>();
-builder.Services.AddScoped<IUserThemeService, UserThemeService>();
+builder.Services.AddScoped<IUserTaskService, UserTaskService>();
 builder.Services.AddScoped<IMailService, MailService>();
 
 builder.Services.AddScoped<ApplicationDbContext>();

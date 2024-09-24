@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskManager.Services.Interfaces;
-using TaskManager.ViewModels;
+using TaskManager.ViewModels.Files;
 
 namespace TaskManager.Controllers;
 
