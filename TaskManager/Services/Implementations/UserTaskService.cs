@@ -38,7 +38,8 @@ namespace TaskManager.Services.Implementations
                 var userTask = new UserTask
                 {
                     TaskId = themeId,
-                    UserId = userId
+                    UserId = userId,
+                    CreateAt = DateTime.Now,
                 };
 
                 await _db.UserTasks.AddAsync(userTask);
@@ -62,8 +63,9 @@ namespace TaskManager.Services.Implementations
 
             if (userTask == null)
                 return false;
-
-            _db.UserTasks.Remove(userTask);
+            userTask.IsDeleted = true;
+            userTask.DeletedAt = DateTime.Now;
+            _db.UserTasks.Update(userTask);
             await _db.SaveChangesAsync();
             return true;
         }

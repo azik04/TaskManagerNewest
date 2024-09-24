@@ -49,6 +49,12 @@ public class UserController : ControllerBase
         var res = await _service.GetAll();
         return Ok(res);
     }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int Id)
+    {
+        var res = await _service.GetById(Id);
+        return Ok(res);
+    }
 
     [HttpDelete]
     public async Task<IActionResult> Remove(long id)

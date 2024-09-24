@@ -146,7 +146,7 @@ public class CommentService : ICommentService
 
             con.DeletedAt = DateTime.Now;
             con.IsDeleted = true;
-            _db.Comments.Remove(con);
+            _db.Comments.Update(con);
             await _db.SaveChangesAsync();
 
             var vm = new GetCommentVM()

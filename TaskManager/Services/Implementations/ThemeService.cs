@@ -180,7 +180,7 @@ public class ThemeService : IThemeService
 
             theme.IsDeleted = true;
             theme.DeletedAt = DateTime.Now;
-            _db.Themes.Remove(theme);
+            _db.Themes.Update(theme);
             await _db.SaveChangesAsync();
 
             var vm = new GetThemeVM()

@@ -183,7 +183,7 @@ public class TaskService : ITaskService
 
             task.IsDeleted = true;
             task.DeletedAt = DateTime.Now;
-            _db.Tasks.Remove(task);
+            _db.Tasks.Update(task);
             await _db.SaveChangesAsync();
 
             var taskDTO = new GetTaskVM

@@ -219,6 +219,48 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<IBaseResponse<GetUserVM>> GetById(long id)
+    {
+        try
+        {
+            var user = await _db.Users.SingleOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+            {
+                Log.Warning("User with Id {UserId} not found during removal", id);
+                return new BaseResponse<GetUserVM>
+                {
+                    Description = "User not found.",
+                    StatusCode = Enum.StatusCode.NotFound
+                };
+            }
+
+            var vm = new GetUserVM
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Password = user.Password,
+                UserName = user.UserName,
+            };
+            Log.Information("User with Id {UserId} removed successfully", id);
+
+            return new BaseResponse<GetUserVM>
+            {
+                Data = vm,
+                Description = "User removed successfully",
+                StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while removing UserId {UserId}: {Message}", id, ex.Message);
+            return new BaseResponse<GetUserVM>
+            {
+                Description = ex.Message,
+                StatusCode = Enum.StatusCode.Error
+            };
+        }
+    }
+
     public async Task<IBaseResponse<string>> LogIn(LogInVM task)
     {
         try
