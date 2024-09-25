@@ -62,6 +62,7 @@ public class CommentService : ICommentService
                 Message = com.Message,
                 TaskId = com.TaskId,
                 UserId = com.UserId,
+                CreateAt = com.CreateAt
             };
             Log.Information("Comment with Id {CommentId} has been successfully created.", com.Id);
 
@@ -106,7 +107,8 @@ public class CommentService : ICommentService
                 Id = item.Id,
                 Message = item.Message,
                 UserId = item.UserId,
-                TaskId = item.TaskId
+                TaskId = item.TaskId,
+                CreateAt = item.CreateAt
             }).ToList();
 
             Log.Information("Retrieved {CommentCount} comments for task with Id {TaskId}.", comments.Count, taskId);
@@ -155,6 +157,8 @@ public class CommentService : ICommentService
                 Message = con.Message,
                 TaskId = con.TaskId,
                 UserId = con.UserId,
+                CreateAt = con.CreateAt
+
             };
 
             Log.Information("Comment with Id {CommentId} has been removed successfully.", id);

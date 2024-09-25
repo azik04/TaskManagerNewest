@@ -6,4 +6,5 @@ public class GetCommentVM
     public string Message { get; set; }
     public long UserId { get; set; }
     public long TaskId { get; set; }
+    public DateTime CreateAt { get; set; }
 }

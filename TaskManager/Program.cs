@@ -48,7 +48,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Admin", policy => policy.RequireRole(Role.Admin.ToString()));
-    options.AddPolicy("User", policy => policy.RequireRole(Role.User.ToString(), Role.Admin.ToString())); // Allows both User and Admin
+    options.AddPolicy("User", policy => policy.RequireRole(Role.User.ToString(), Role.Admin.ToString())); 
 });
 
 
@@ -75,7 +75,7 @@ builder.Services.AddCors(options =>
 
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connection));
+    options.UseInMemoryDatabase(connection));
 
 var app = builder.Build();
 

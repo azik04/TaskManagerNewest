@@ -14,6 +14,18 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Users>(entity =>
+        {
+            entity.HasData(
+                new Users
+                {
+                    Email = "Admin@gmail.com",
+                    UserName = "Admin",
+                    Password = "Admin123",
+                    Id = 1,
+                    Role = Enum.Role.Admin
+                });
+        });
 
         modelBuilder.Entity<Themes>(entity =>
         {
@@ -80,6 +92,7 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(ut => ut.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
     }
 
 

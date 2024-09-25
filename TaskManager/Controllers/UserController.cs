@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.UsersVMs;
 using TaskManager.ViewModels.RegisterVM;
-using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManager.Controllers;
 
@@ -51,15 +48,13 @@ public class UserController : ControllerBase
         return Ok(res);
     }
     [HttpGet("{id}")]
-    [Authorize(Policy = "Admin")]
-    public async Task<IActionResult> GetById(int Id)
+    public async Task<IActionResult> GetById(long id)
     {
-        var res = await _service.GetById(Id);
+        var res = await _service.GetById(id);
         return Ok(res);
     }
 
     [HttpDelete]
-    [Authorize(Policy = "User")]
     public async Task<IActionResult> Remove(long id)
     {
         var res = await _service.Remove(id);

@@ -135,7 +135,7 @@ public class ThemeService : IThemeService
     {
         try
         {
-            var data = await _db.Themes.Where(x => x.UserId == userId).ToListAsync();
+            var data = await _db.Themes.Where(x => x.UserId == userId && !x.IsDeleted).ToListAsync();
             var themeVMs = data.Select(item => new GetThemeVM
             {
                 id = item.Id,
