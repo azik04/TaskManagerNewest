@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Files;
 
@@ -16,6 +17,8 @@ public class FileController : ControllerBase
     }
 
     [HttpPost("upload")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> UploadFile([FromForm] UploadFileVM uploadFile)
     {
         if (!ModelState.IsValid)
@@ -33,6 +36,8 @@ public class FileController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> DownloadFile(long id)
     {
         var fileResult = await _fileService.DownloadFile(id);
@@ -43,6 +48,8 @@ public class FileController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> DeleteFile(long id)
     {
         var result = await _fileService.DeleteFile(id);
@@ -53,6 +60,8 @@ public class FileController : ControllerBase
     }
 
     [HttpGet("task/{taskId}")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> ListFiles(long taskId)
     {
         var files = await _fileService.ListFilesAsync(taskId);

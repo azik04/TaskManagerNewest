@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskManager.Context;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Themes;
@@ -18,6 +19,7 @@ public class ThemeController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "User")]
     public async Task<IActionResult> Create(CreateThemeVM task)
     {
         if (!ModelState.IsValid)
@@ -31,6 +33,8 @@ public class ThemeController : ControllerBase
         return BadRequest(res);
     }
     [HttpGet]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> GetAll()
     {
         var res = await _service.GetAll();
@@ -38,6 +42,8 @@ public class ThemeController : ControllerBase
 
     }
     [HttpGet("userId/{id}")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> GetByUser(long id)
     {
         var res = await _service.GetByUser(id);
@@ -45,6 +51,8 @@ public class ThemeController : ControllerBase
 
     }
     [HttpGet("{id}")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> GetById(long id)
     {
         var res = await _service.GetById(id);
@@ -55,6 +63,8 @@ public class ThemeController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> Remove(long id)
     {
         var res = await _service.Remove(id);

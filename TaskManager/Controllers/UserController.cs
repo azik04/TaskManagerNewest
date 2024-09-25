@@ -2,6 +2,7 @@
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.UsersVMs;
 using TaskManager.ViewModels.RegisterVM;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManager.Controllers;
 
@@ -16,6 +17,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("register")]
+    [Authorize(Policy = "Admin")]
     public async Task<IActionResult> Register(RegisterVM task)
     {
         if (!ModelState.IsValid)
@@ -48,6 +50,7 @@ public class UserController : ControllerBase
         return Ok(res);
     }
     [HttpGet("{id}")]
+
     public async Task<IActionResult> GetById(long id)
     {
         var res = await _service.GetById(id);
@@ -55,6 +58,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Policy = "Admin")]
     public async Task<IActionResult> Remove(long id)
     {
         var res = await _service.Remove(id);
@@ -70,6 +74,7 @@ public class UserController : ControllerBase
         return Ok("LogOut successfully");
     }
     [HttpPut("ChangeRole")]
+    [Authorize(Policy = "Admin")]
     public async Task<IActionResult> ChangeRole(long id)
     {
         var res = await _service.ChangeRole(id);
@@ -79,6 +84,7 @@ public class UserController : ControllerBase
         return BadRequest(res);
     }
     [HttpPut("ChangePassword")]
+    [Authorize(Policy = "Admin")]
     public async Task<IActionResult> ChangePassword(long id, ChangePasswordVM changePassword )
     {
         var res = await _service.ChangePassword(id,  changePassword);
@@ -88,6 +94,7 @@ public class UserController : ControllerBase
         return BadRequest(res);
     }
     [HttpPut("ChangeEmail")]
+    [Authorize(Policy = "Admin")]
     public async Task<IActionResult> ChangeEmail(long id, ChangeEmail changeEmail)
     {
         var res = await _service.ChangeEmail(id, changeEmail);

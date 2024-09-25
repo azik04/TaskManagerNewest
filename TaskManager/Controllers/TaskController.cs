@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskManager.Context;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Tasks;
@@ -18,6 +19,8 @@ public class TaskController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> Create(CreateTaskVM task)
     {
         if (!ModelState.IsValid)
@@ -31,6 +34,8 @@ public class TaskController : ControllerBase
         return BadRequest(res);
     }
     [HttpGet]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> GetAll()
     {
         var res = await _service.GetAll(); 
@@ -38,6 +43,8 @@ public class TaskController : ControllerBase
         
     }
     [HttpGet("done")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> GetAllDone(long themeId)
     {
         var res = await _service.GetAllDone(themeId);
@@ -45,6 +52,8 @@ public class TaskController : ControllerBase
 
     }
     [HttpGet("notdone")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> GetAllNotDone(long themeId)
     {
         var res = await _service.GetAllNotDone(themeId);
@@ -52,6 +61,8 @@ public class TaskController : ControllerBase
 
     }
     [HttpGet("{id}")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> GetById(long id)
    {
         var res = await _service.GetById(id);
@@ -62,6 +73,8 @@ public class TaskController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> Remove(long id)
     {
         var res = await _service.Remove(id);
@@ -71,6 +84,8 @@ public class TaskController : ControllerBase
         return BadRequest(res);
     }
     [HttpPut]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> Update(long id, UpdateTaskVM task)
     {
         var res = await _service.Update(id, task);
@@ -80,6 +95,8 @@ public class TaskController : ControllerBase
         return BadRequest(res);
     }
     [HttpPut("complite/{id}")]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> Complite(long id)
     {
         var res = await _service.Complite(id);

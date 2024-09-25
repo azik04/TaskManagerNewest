@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Services.Implementations;
 using TaskManager.Services.Interfaces;
@@ -16,6 +17,8 @@ namespace TaskManager.Controllers
             _service = service;
         }
         [HttpPost("{taskId}/users/{userId}")]
+        [Authorize(Policy = "User")]
+
         public async Task<IActionResult> AddUserToTask(long taskId, long userId)
         {
             var result = await _service.AddUsersToTask(taskId, userId);
@@ -25,6 +28,8 @@ namespace TaskManager.Controllers
         }
 
         [HttpDelete("{taskId}/users/{userId}")]
+        [Authorize(Policy = "User")]
+
         public async Task<IActionResult> RemoveUserFromTask(long taskId, long userId)
         {
             var result = await _service.RemoveUserFromTask(taskId, userId);
@@ -34,12 +39,16 @@ namespace TaskManager.Controllers
         }
 
         [HttpGet("{taskId}/users")]
+        [Authorize(Policy = "User")]
+
         public async Task<IActionResult> GetUsersByTaskId(long taskId)
         {
             var users = await _service.GetUsersByTaskId(taskId);
             return Ok(users);
         }
         [HttpGet("{userId}/theme")]
+        [Authorize(Policy = "User")]
+
         public async Task<IActionResult> GetTaskByUserId(long userId)
         {
             var users = await _service.GetTaskByUserId(userId);

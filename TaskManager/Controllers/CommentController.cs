@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Comments;
 
@@ -16,6 +17,8 @@ public class CommentController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> GetByTask(long taskId)
     {
         var res = await _service.GetByTask(taskId);
@@ -23,6 +26,8 @@ public class CommentController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> Remove(long id)
     {
         var res = await _service.Remove(id);
@@ -33,6 +38,8 @@ public class CommentController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "User")]
+
     public async Task<IActionResult> Create(CreateCommentVM comment)
     {
         if (!ModelState.IsValid)
