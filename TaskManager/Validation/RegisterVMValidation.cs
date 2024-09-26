@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using TaskManager.ViewModels.RegisterVM;
-using TaskManager.ViewModels.UsersVMs;
 
 namespace TaskManager.Validation;
 
@@ -19,6 +18,6 @@ public class RegisterVMValidator : AbstractValidator<RegisterVM>
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")
-            .Length(8, 100).WithMessage("Password must be at least 8 characters long."); // Adjust minimum length as needed
+            .Length(8, 100).WithMessage("Password must be at least 8 characters long."); 
     }
 }

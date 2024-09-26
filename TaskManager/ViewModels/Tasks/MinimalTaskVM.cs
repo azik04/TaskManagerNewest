@@ -1,7 +1,6 @@
-﻿namespace TaskManager.ViewModels.Tasks
+﻿namespace TaskManager.ViewModels.Tasks;
+
+public class MinimalTaskVM
 {
-    public class MinimalTaskVM
-    {
-        public string TaskName { get; set; }
-    }
+    public string TaskName { get; set; }
 }

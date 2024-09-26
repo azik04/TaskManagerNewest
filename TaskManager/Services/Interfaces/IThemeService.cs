@@ -1,5 +1,4 @@
-﻿using TaskManager.Models;
-using TaskManager.Response;
+﻿using TaskManager.Response;
 using TaskManager.ViewModels.Themes;
 
 namespace TaskManager.Services.Interfaces;

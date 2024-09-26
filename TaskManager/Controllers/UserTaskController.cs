@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Services.Implementations;
 using TaskManager.Services.Interfaces;
 
 namespace TaskManager.Controllers
@@ -21,6 +19,10 @@ namespace TaskManager.Controllers
 
         public async Task<IActionResult> AddUserToTask(long taskId, long userId)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var result = await _service.AddUsersToTask(taskId, userId);
             if (result)
                 return Ok("User added to task.");

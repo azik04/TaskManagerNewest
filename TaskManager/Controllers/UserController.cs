@@ -95,7 +95,7 @@ public class UserController : ControllerBase
     }
     [HttpPut("ChangeEmail")]
     [Authorize(Policy = "Admin")]
-    public async Task<IActionResult> ChangeEmail(long id, ChangeEmail changeEmail)
+    public async Task<IActionResult> ChangeEmail(long id, ChangeEmailVM changeEmail)
     {
         var res = await _service.ChangeEmail(id, changeEmail);
         if (res.StatusCode == Enum.StatusCode.OK)

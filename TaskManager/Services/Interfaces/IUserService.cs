@@ -13,5 +13,5 @@ public interface IUserService
     public Task<IBaseResponse<GetUserVM>> GetById(long id);
     public Task<IBaseResponse<GetUserVM>> ChangeRole(long id);
     public Task<IBaseResponse<GetUserVM>> ChangePassword(long userId, ChangePasswordVM changePassword);
-    public Task<IBaseResponse<GetUserVM>> ChangeEmail(long userId, ChangeEmail changePassword);
+    public Task<IBaseResponse<GetUserVM>> ChangeEmail(long userId, ChangeEmailVM changePassword);
 }

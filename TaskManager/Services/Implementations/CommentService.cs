@@ -5,8 +5,6 @@ using TaskManager.Models;
 using TaskManager.Response;
 using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Comments;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using TaskManager.ViewModels.Themes;
 
 namespace TaskManager.Services.Implementations;
 

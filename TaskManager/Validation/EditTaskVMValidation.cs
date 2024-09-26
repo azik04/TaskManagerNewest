@@ -3,9 +3,9 @@ using TaskManager.ViewModels.Tasks;
 
 namespace TaskManager.Validation;
 
-public class CreateTaskVMValidator : AbstractValidator<CreateTaskVM>
+public class EditTaskVMValidation : AbstractValidator<UpdateTaskVM>
 {
-    public CreateTaskVMValidator()
+    public EditTaskVMValidation()
     {
         RuleFor(x => x.TaskName)
             .NotEmpty().WithMessage("Task name is required.")
@@ -21,15 +21,9 @@ public class CreateTaskVMValidator : AbstractValidator<CreateTaskVM>
         RuleFor(x => x.Priority)
             .NotEmpty().WithMessage("Priority is required.");
 
-        RuleFor(x => x.ThemeId)
-            .GreaterThan(0).WithMessage("Theme ID must be a positive number.");
 
         RuleFor(x => x.DeadLine)
-         .NotEmpty().WithMessage("Deadline is required.");
-
-
-        RuleFor(x => x.ExecutiveUserId)
-           .NotEmpty().WithMessage("Deadline is required.");
+            .NotEmpty().WithMessage("Deadline is required.");
 
     }
 

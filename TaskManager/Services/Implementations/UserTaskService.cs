@@ -25,14 +25,23 @@ namespace TaskManager.Services.Implementations
                 if (task == null || user == null)
                     return false;
 
-                // Check if the user-task relationship already exists
                 var existingUserTask = await _db.UserTasks
-                    .AnyAsync(ut => ut.TaskId == themeId && ut.UserId == userId);
+                    .FirstOrDefaultAsync(ut => ut.TaskId == themeId && ut.UserId == userId);
 
-                if (existingUserTask)
+                if (existingUserTask != null)
                 {
+                    if (existingUserTask.IsDeleted)
+                    {
+                        existingUserTask.IsDeleted = false;
+                        existingUserTask.CreateAt = DateTime.Now; 
+                        _db.UserTasks.Update(existingUserTask);
+                        await _db.SaveChangesAsync();
+                        Console.WriteLine("User task restored.");
+                        return true;
+                    }
+
                     Console.WriteLine("This user is already added to the task.");
-                    return false; // or handle it as you see fit
+                    return false;
                 }
 
                 var userTask = new UserTask
@@ -40,6 +49,7 @@ namespace TaskManager.Services.Implementations
                     TaskId = themeId,
                     UserId = userId,
                     CreateAt = DateTime.Now,
+                    IsDeleted = false 
                 };
 
                 await _db.UserTasks.AddAsync(userTask);
@@ -49,11 +59,11 @@ namespace TaskManager.Services.Implementations
             }
             catch (Exception ex)
             {
-                // Log the exception (you could use a logging library)
                 Console.WriteLine($"Error adding user to task: {ex.Message}");
                 return false;
             }
         }
+
 
 
         public async Task<bool> RemoveUserFromTask(long themeId, long userId)
@@ -74,7 +84,7 @@ namespace TaskManager.Services.Implementations
         public async Task<ICollection<Users>> GetUsersByTaskId(long themeId)
         {
             var users = await _db.UserTasks
-                .Where(ut => ut.TaskId == themeId)
+                .Where(ut => ut.TaskId == themeId && !ut.IsDeleted)
                 .Select(ut => ut.User)
                 .ToListAsync();
 
@@ -83,7 +93,7 @@ namespace TaskManager.Services.Implementations
         public async Task<ICollection<Tasks>> GetTaskByUserId(long userId)
         {
             var themes = await _db.UserTasks
-                .Where(ut => ut.UserId == userId)
+                .Where(ut => ut.UserId == userId && !ut.IsDeleted)
                 .Include(ut => ut.Task)
                 .Select(ut => ut.Task)
                 .Distinct()

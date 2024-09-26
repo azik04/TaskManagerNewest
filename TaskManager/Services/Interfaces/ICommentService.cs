@@ -1,5 +1,4 @@
-﻿using TaskManager.Models;
-using TaskManager.Response;
+﻿using TaskManager.Response;
 using TaskManager.ViewModels.Comments;
 
 namespace TaskManager.Services.Interfaces;

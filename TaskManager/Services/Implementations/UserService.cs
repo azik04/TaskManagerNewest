@@ -24,7 +24,7 @@ public class UserService : IUserService
         _contextAccessor = contextAccessor;
     }
 
-    public async Task<IBaseResponse<GetUserVM>> ChangeEmail(long id, ChangeEmail changeEmail)
+    public async Task<IBaseResponse<GetUserVM>> ChangeEmail(long id, ChangeEmailVM changeEmail)
     {
         try
         {
@@ -186,7 +186,7 @@ public class UserService : IUserService
     {
         try
         {
-            var data = await _db.Users.ToListAsync();
+            var data = await _db.Users.Where(x => !x.IsDeleted).ToListAsync();
             Log.Information("All users retrieved successfully");
             var usersVM = new List<GetUserVM>();
 
