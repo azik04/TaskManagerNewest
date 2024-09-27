@@ -17,6 +17,7 @@ public class Tasks : BaseModel
     public virtual Users ExecutiveUser { get; set; }
     public virtual Themes Theme { get; set; }
     public virtual ICollection<Files> Files { get; set; } 
-    public virtual ICollection<UserTask> UserTasks { get; set; }
-    public virtual ICollection<Comment> Comments { get; set; }
+    public virtual ICollection<UserTasks> UserTasks { get; set; }
+    public virtual ICollection<Comments> Comments { get; set; }
+    public virtual ICollection<SubTasks> CoTasks { get; set; }
 }

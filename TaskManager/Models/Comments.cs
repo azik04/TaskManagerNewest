@@ -2,7 +2,7 @@
 
 namespace TaskManager.Models;
 
-public class Comment : BaseModel
+public class Comments : BaseModel
 {
     public string Message { get; set; }
     public long UserId { get; set; }

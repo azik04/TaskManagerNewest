@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaskManager.Models;
 
 namespace TaskManager.Context;
@@ -59,7 +60,7 @@ public class ApplicationDbContext : DbContext
                   .HasForeignKey(c => c.TaskId);
         });
 
-        modelBuilder.Entity<Comment>(entity =>
+        modelBuilder.Entity<Comments>(entity =>
         {
             entity.HasKey(c => c.Id);
 
@@ -78,7 +79,7 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(f => f.TaskId);
         });
 
-        modelBuilder.Entity<UserTask>(entity =>
+        modelBuilder.Entity<UserTasks>(entity =>
         {
             entity.HasKey(ut => new { ut.TaskId, ut.UserId });
 
@@ -91,6 +92,20 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(ut => ut.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+        modelBuilder.Entity<SubTasks>(entity =>
+        {
+            entity.HasKey(ct => ct.Id);
+
+            entity.HasOne(ct => ct.Task)
+                  .WithMany(t => t.CoTasks)
+                  .HasForeignKey(ct => ct.TaskId)
+                  .OnDelete(DeleteBehavior.Restrict); 
+
+            entity.HasOne(ct => ct.User)
+                  .WithMany(u => u.CoTasks) 
+                  .HasForeignKey(ct => ct.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
 
     }
 
@@ -100,6 +115,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Files> Files { get; set; }
     public DbSet<Themes> Themes { get; set; }
     public DbSet<Users> Users { get; set; }
-    public DbSet<Comment> Comments { get; set; }
-    public DbSet<UserTask> UserTasks { get; set; }
+    public DbSet<Comments> Comments { get; set; }
+    public DbSet<UserTasks> UserTasks { get; set; }
+    public DbSet<SubTasks> SubTasks { get; set; }
 }

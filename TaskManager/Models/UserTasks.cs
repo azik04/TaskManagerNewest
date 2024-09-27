@@ -2,7 +2,7 @@
 
 namespace TaskManager.Models;
 
-public class UserTask : BaseModel
+public class UserTasks : BaseModel
 {
     public long TaskId { get; set; }
 

@@ -43,7 +43,7 @@ public class CommentService : ICommentService
                 };
             }
 
-            var com = new Comment()
+            var com = new Comments()
             {
                 Message = comment.Message,
                 TaskId = comment.TaskId,

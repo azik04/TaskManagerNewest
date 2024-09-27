@@ -11,7 +11,8 @@ public class Users : BaseModel
     public Role Role { get; set; }
 
     public virtual ICollection<Tasks> Tasks { get; set; }
-    public virtual ICollection<UserTask> UserTasks { get; set; }
-    public virtual ICollection<Comment> Comment { get; set; }
+    public virtual ICollection<UserTasks> UserTasks { get; set; }
+    public virtual ICollection<Comments> Comment { get; set; }
     public virtual ICollection<Themes> Themes { get; set; }
+    public virtual ICollection<SubTasks> CoTasks { get; set; }
 }

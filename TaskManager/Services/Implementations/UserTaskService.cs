@@ -44,7 +44,7 @@ namespace TaskManager.Services.Implementations
                     return false;
                 }
 
-                var userTask = new UserTask
+                var userTask = new UserTasks
                 {
                     TaskId = themeId,
                     UserId = userId,

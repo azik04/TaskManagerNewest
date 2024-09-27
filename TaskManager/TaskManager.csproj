@@ -13,6 +13,10 @@
     <None Remove="Context\upload\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="ViewModels\SubTask\GetCoTaskVM.cs" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 		<PackageReference Include="MailKit" Version="4.7.1.1" />
