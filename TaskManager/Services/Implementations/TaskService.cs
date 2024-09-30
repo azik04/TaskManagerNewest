@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Xml.Linq;
 using TaskManager.Context;
 using TaskManager.Models;
 using TaskManager.Response;
@@ -7,6 +8,7 @@ using TaskManager.Services.Interfaces;
 using TaskManager.ViewModels.Tasks;
 
 namespace TaskManager.Services.Implementations;
+
 
 public class TaskService : ITaskService
 {
@@ -181,7 +183,38 @@ public class TaskService : ITaskService
 
             task.IsDeleted = true;
             task.DeletedAt = DateTime.Now;
+
+            var files = await _db.Files.Where(x => x.TaskId == id).ToListAsync();
+            foreach (var file in files)
+            {
+                file.IsDeleted = true;
+                file.DeletedAt = DateTime.Now; 
+            }
+
+            var comments = await _db.Comments.Where(x => x.TaskId == id).ToListAsync();
+            foreach (var comment in comments)
+            {
+                comment.IsDeleted = true;
+                comment.DeletedAt = DateTime.Now; 
+            }
+            var added = await _db.UserTasks.Where(x => x.TaskId == id).ToListAsync();
+            foreach (var item in added)
+            {
+                item.IsDeleted = true;
+                item.DeletedAt = DateTime.Now;
+            }
+            var sub = await _db.SubTasks.Where(x => x.TaskId == id).ToListAsync();
+            foreach (var item in sub)
+            {
+                item.IsDeleted = true;
+                item.DeletedAt = DateTime.Now;
+            }
             _db.Tasks.Update(task);
+            _db.SubTasks.UpdateRange(sub);
+            _db.Files.UpdateRange(files);
+            _db.UserTasks.UpdateRange(added);
+            _db.Comments.UpdateRange(comments);
+
             await _db.SaveChangesAsync();
 
             var taskDTO = new GetTaskVM
@@ -197,7 +230,6 @@ public class TaskService : ITaskService
                 IsCompleted = task.IsCompleted,
                 ThemeId = task.ThemeId,
                 ExecutiveUserId = task.ExecutiveUserId,
-
             };
 
             Log.Information("Task with Id {TaskId} has been successfully removed", task.Id);
@@ -219,7 +251,8 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<IBaseResponse<GetTaskVM>> Update(long id, UpdateTaskVM updateTask)
+
+public async Task<IBaseResponse<GetTaskVM>> Update(long id, UpdateTaskVM updateTask)
     {
         try
         {

@@ -322,6 +322,17 @@ public class UserService : IUserService
     {
         try
         {
+            var existingUser = await _db.Users.SingleOrDefaultAsync(x => x.Email == task.Email);
+            if (existingUser != null)
+            {
+                Log.Warning("Email, {Email} has already been used", existingUser.Email);
+                return new BaseResponse<GetUserVM>
+                {
+                    Description = "Email has already been used.",
+                    StatusCode = Enum.StatusCode.Error,
+                };
+            }
+
             var user = new Users()
             {
                 UserName = task.UserName,
@@ -339,7 +350,6 @@ public class UserService : IUserService
                 Password = user.Password,
                 UserName = user.UserName,
                 Role = user.Role,
-
             };
             Log.Information("User with UserName {UserName} registered successfully", task.UserName);
 

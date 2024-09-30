@@ -66,7 +66,7 @@ public class SubTaskService : ISubTaskService
     {
         try
         {
-            var taskExist = await _db.Tasks.SingleOrDefaultAsync(x => x.Id == taskId);
+            var taskExist = await _db.SubTasks.Where(x => x.TaskId == taskId).ToListAsync();
             if (taskExist == null)
             {
                 return new BaseResponse<ICollection<GetSubTaskVM>>
@@ -85,6 +85,7 @@ public class SubTaskService : ISubTaskService
                 Name = item.Name,
                 Priority = item.Priority,
                 TaskId = item.TaskId,
+                Id = item.Id,
                 UserId = item.UserId,
             }).ToList();
 
@@ -134,6 +135,7 @@ public class SubTaskService : ISubTaskService
                 Priority = subTaskExist.Priority,
                 TaskId = subTaskExist.TaskId,
                 UserId = subTaskExist.UserId,
+                Id = subTaskExist.Id
             };
 
             Log.Information("SubTask '{SubTaskName}' removed successfully with ID: {Id}", vm.Name, id);

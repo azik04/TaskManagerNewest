@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 using TaskManager.Context;
 using TaskManager.Models;
 using TaskManager.Response;
@@ -180,17 +183,58 @@ public class ThemeService : IThemeService
 
             theme.IsDeleted = true;
             theme.DeletedAt = DateTime.Now;
-            _db.Themes.Update(theme);
+
+            var tasks = await _db.Tasks.Where(x => x.ThemeId == id).ToListAsync();
+            foreach (var task in tasks)
+            {
+                task.IsDeleted = true;
+                task.DeletedAt = DateTime.Now;
+
+                var files = await _db.Files.Where(x => x.TaskId == task.Id).ToListAsync();
+                foreach (var file in files)
+                {
+                    file.IsDeleted = true;
+                    file.DeletedAt = DateTime.Now;
+                }
+                _db.Files.UpdateRange(files); 
+
+                var comments = await _db.Comments.Where(x => x.TaskId == task.Id).ToListAsync();
+                foreach (var comment in comments)
+                {
+                    comment.IsDeleted = true;
+                    comment.DeletedAt = DateTime.Now;
+                }
+                _db.Comments.UpdateRange(comments); 
+
+                var userTasks = await _db.UserTasks.Where(x => x.TaskId == task.Id).ToListAsync();
+                foreach (var userTask in userTasks)
+                {
+                    userTask.IsDeleted = true;
+                    userTask.DeletedAt = DateTime.Now;
+                }
+                _db.UserTasks.UpdateRange(userTasks); 
+
+                var subtasks = await _db.SubTasks.Where(x => x.TaskId == task.Id).ToListAsync();
+                foreach (var subtask in subtasks)
+                {
+                    subtask.IsDeleted = true;
+                    subtask.DeletedAt = DateTime.Now;
+                }
+                _db.SubTasks.UpdateRange(subtasks); 
+            }
+
+            _db.Tasks.UpdateRange(tasks); 
+            _db.Themes.Update(theme); 
             await _db.SaveChangesAsync();
 
-            var vm = new GetThemeVM()
+            var vm = new GetThemeVM
             {
                 id = theme.Id,
                 Name = theme.Name,
                 UserId = theme.UserId,
             };
-            Log.Information("Theme with Id {ThemeId} has been successfully removed", theme.Id);
 
+            Log.Information("Theme with Id {ThemeId} has been successfully removed", theme.Id);
             return new BaseResponse<GetThemeVM>
             {
                 Data = vm,
