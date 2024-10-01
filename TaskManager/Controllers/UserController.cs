@@ -43,10 +43,10 @@ public class UserController : ControllerBase
 
         return BadRequest(res);
     }
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    [HttpGet("/{taskId}/GetUnassignedUsers")]
+    public async Task<IActionResult> GetAll(long taskId)
     {
-        var res = await _service.GetAll();
+        var res = await _service.GetUnassignedUsersForTask(taskId);
         return Ok(res);
     }
     [HttpGet("Admins")]

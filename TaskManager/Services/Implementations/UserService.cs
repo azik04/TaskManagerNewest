@@ -182,39 +182,41 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IBaseResponse<ICollection<GetUserVM>>> GetAll()
+    public async Task<IBaseResponse<ICollection<GetUserVM>>> GetUnassignedUsersForTask(long taskId)
     {
         try
         {
-            var data = await _db.Users.Where(x => !x.IsDeleted).ToListAsync();
-            Log.Information("All users retrieved successfully");
-            var usersVM = new List<GetUserVM>();
+            var taskAssignedUsers = await _db.UserTasks
+                .Where(ut => ut.TaskId == taskId && !ut.IsDeleted)
+                .Select(ut => ut.UserId)
+                .Distinct()
+                .ToListAsync();
 
-            foreach (var item in data)
+            var data = await _db.Users
+                .Where(x => !x.IsDeleted && !taskAssignedUsers.Contains(x.Id))
+                .ToListAsync();
+
+            Log.Information("Unassigned users for task {TaskId} retrieved successfully", taskId);
+            
+            var usersVM = data.Select(item => new GetUserVM
             {
-                var vm = new GetUserVM
-                {
-                    Id = item.Id,
-                    Email = item.Email,
-                    Password = item.Password,
-                    UserName = item.UserName,
-                    Role = item.Role,
-                };
-
-                usersVM.Add(vm);
-            }
-
+                Id = item.Id,
+                Email = item.Email,
+                Password = item.Password,
+                UserName = item.UserName,
+                Role = item.Role,
+            }).ToList();
 
             return new BaseResponse<ICollection<GetUserVM>>
             {
                 Data = usersVM,
-                Description = "Users successfully retrieved",
+                Description = $"Users successfully retrieved for task {taskId}",
                 StatusCode = Enum.StatusCode.OK
             };
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error occurred while retrieving all users: {Message}", ex.Message);
+            Log.Error(ex, "Error occurred while retrieving unassigned users for task {TaskId}: {Message}", taskId, ex.Message);
             return new BaseResponse<ICollection<GetUserVM>>
             {
                 Description = ex.Message,
@@ -222,6 +224,7 @@ public class UserService : IUserService
             };
         }
     }
+
 
 
     public async Task<IBaseResponse<ICollection<GetUserVM>>> GetAllAdmins()
@@ -449,50 +452,98 @@ public class UserService : IUserService
 
     public async Task<IBaseResponse<GetUserVM>> Remove(long id)
     {
-        try
+        using (var transaction = await _db.Database.BeginTransactionAsync())
         {
-            var user = await _db.Users.SingleOrDefaultAsync(x => x.Id == id);
-            if (user == null)
+            try
             {
-                Log.Warning("User with Id {UserId} not found during removal", id);
+                var user = await _db.Users.SingleOrDefaultAsync(x => x.Id == id);
+                if (user == null)
+                {
+                    Log.Warning("User with Id {UserId} not found during removal", id);
+                    return new BaseResponse<GetUserVM>
+                    {
+                        Description = "User not found.",
+                        StatusCode = Enum.StatusCode.NotFound
+                    };
+                }
+
+                user.IsDeleted = true;
+                user.DeletedAt = DateTime.Now;
+
+                var themes = await _db.Themes.Where(x => x.UserId == id).ToListAsync();
+                foreach (var theme in themes)
+                {
+                    theme.IsDeleted = true;
+                    theme.DeletedAt = DateTime.Now;
+
+                    var tasks = await _db.Tasks.Where(x => x.ThemeId == theme.Id).ToListAsync();
+                    foreach (var task in tasks)
+                    {
+                        task.IsDeleted = true;
+                        task.DeletedAt = DateTime.Now;
+
+                        var files = await _db.Files.Where(x => x.TaskId == task.Id).ToListAsync();
+                        foreach (var file in files)
+                        {
+                            file.IsDeleted = true;
+                            file.DeletedAt = DateTime.Now;
+                        }
+                        _db.Files.UpdateRange(files);
+                    }
+                    _db.Tasks.UpdateRange(tasks);
+                }
+                _db.Themes.UpdateRange(themes);
+
+                var comments = await _db.Comments.Where(x => x.UserId == id).ToListAsync();
+                foreach (var comment in comments)
+                {
+                    comment.IsDeleted = true;
+                    comment.DeletedAt = DateTime.Now;
+                }
+                _db.Comments.UpdateRange(comments);
+
+                var userTasks = await _db.UserTasks.Where(x => x.UserId == id).ToListAsync();
+                foreach (var userTask in userTasks)
+                {
+                    userTask.IsDeleted = true;
+                    userTask.DeletedAt = DateTime.Now;
+                }
+                _db.UserTasks.UpdateRange(userTasks);
+
+                _db.Users.Update(user);
+
+                await _db.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                var vm = new GetUserVM
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Password = user.Password,
+                    UserName = user.UserName,
+                    Role = user.Role,
+                };
+
+                Log.Information("User with Id {UserId} removed successfully", id);
                 return new BaseResponse<GetUserVM>
                 {
-                    Description = "User not found.",
-                    StatusCode = Enum.StatusCode.NotFound
+                    Data = vm,
+                    Description = "User removed successfully",
+                    StatusCode = Enum.StatusCode.OK
                 };
             }
-
-            user.IsDeleted = true;
-            user.DeletedAt = DateTime.Now;
-            _db.Users.Update(user);
-            await _db.SaveChangesAsync();
-
-            var vm = new GetUserVM
+            catch (Exception ex)
             {
-                Id = user.Id,
-                Email = user.Email,
-                Password = user.Password,
-                UserName = user.UserName,
-                Role = user.Role,
-
-            };
-            Log.Information("User with Id {UserId} removed successfully", id);
-
-            return new BaseResponse<GetUserVM>
-            {
-                Data = vm,
-                Description = "User removed successfully",
-                StatusCode = Enum.StatusCode.OK
-            };
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Error occurred while removing UserId {UserId}: {Message}", id, ex.Message);
-            return new BaseResponse<GetUserVM>
-            {
-                Description = ex.Message,
-                StatusCode = Enum.StatusCode.Error
-            };
+                await transaction.RollbackAsync(); 
+                Log.Error(ex, "Error occurred while removing UserId {UserId}: {Message}", id, ex.Message);
+                return new BaseResponse<GetUserVM>
+                {
+                    Description = ex.Message,
+                    StatusCode = Enum.StatusCode.Error
+                };
+            }
         }
     }
+
 }
