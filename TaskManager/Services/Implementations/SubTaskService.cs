@@ -66,7 +66,7 @@ public class SubTaskService : ISubTaskService
     {
         try
         {
-            var taskExist = await _db.SubTasks.Where(x => x.TaskId == taskId).ToListAsync();
+            var taskExist = await _db.SubTasks.Where(x => x.TaskId == taskId && !x.IsDeleted).ToListAsync();
             if (taskExist == null)
             {
                 return new BaseResponse<ICollection<GetSubTaskVM>>
@@ -105,6 +105,146 @@ public class SubTaskService : ISubTaskService
             return new BaseResponse<ICollection<GetSubTaskVM>>
             {
                 Description = "An error occurred while retrieving the SubTasks.",
+                StatusCode = Enum.StatusCode.Error
+            };
+        }
+    }
+
+    public async Task<IBaseResponse<ICollection<GetSubTaskVM>>> GetByTaskDone(long taskId)
+    {
+        try
+        {
+            var doneTasks = await _db.SubTasks
+                .Where(x => x.TaskId == taskId && !x.IsDeleted && x.IsCompleted)
+                .ToListAsync();
+
+            if (doneTasks == null || !doneTasks.Any())
+            {
+                return new BaseResponse<ICollection<GetSubTaskVM>>
+                {
+                    Description = $"No completed SubTasks found for Task ID: {taskId}.",
+                    StatusCode = Enum.StatusCode.NotFound
+                };
+            }
+
+            var vm = doneTasks.Select(item => new GetSubTaskVM
+            {
+                Name = item.Name,
+                Priority = item.Priority,
+                TaskId = item.TaskId,
+                Id = item.Id,
+                UserId = item.UserId,
+            }).ToList();
+
+            Log.Information("Retrieved {Count} completed SubTasks for Task ID: {TaskId}", vm.Count, taskId);
+
+            return new BaseResponse<ICollection<GetSubTaskVM>>
+            {
+                Data = vm,
+                Description = "Completed SubTasks retrieved successfully.",
+                StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while retrieving completed SubTasks for Task ID: {TaskId}", taskId);
+            return new BaseResponse<ICollection<GetSubTaskVM>>
+            {
+                Description = "An error occurred while retrieving completed SubTasks.",
+                StatusCode = Enum.StatusCode.Error
+            };
+        }
+    }
+
+    public async Task<IBaseResponse<ICollection<GetSubTaskVM>>> GetByTaskNotDone(long taskId)
+    {
+        try
+        {
+            var notDoneTasks = await _db.SubTasks
+                .Where(x => x.TaskId == taskId && !x.IsDeleted && !x.IsCompleted)
+                .ToListAsync();
+
+            if (notDoneTasks == null || !notDoneTasks.Any())
+            {
+                return new BaseResponse<ICollection<GetSubTaskVM>>
+                {
+                    Description = $"No pending SubTasks found for Task ID: {taskId}.",
+                    StatusCode = Enum.StatusCode.NotFound
+                };
+            }
+
+
+            var vm = notDoneTasks.Select(item => new GetSubTaskVM
+            {
+                Name = item.Name,
+                Priority = item.Priority,
+                TaskId = item.TaskId,
+                Id = item.Id,
+                UserId = item.UserId,
+            }).ToList();
+
+            Log.Information("Retrieved {Count} pending SubTasks for Task ID: {TaskId}", vm.Count, taskId);
+
+            return new BaseResponse<ICollection<GetSubTaskVM>>
+            {
+                Data = vm,
+                Description = "Pending SubTasks retrieved successfully.",
+                StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while retrieving pending SubTasks for Task ID: {TaskId}", taskId);
+            return new BaseResponse<ICollection<GetSubTaskVM>>
+            {
+                Description = "An error occurred while retrieving pending SubTasks.",
+                StatusCode = Enum.StatusCode.Error
+            };
+        }
+    }
+
+    public async Task<IBaseResponse<GetSubTaskVM>> Complete(long id)
+    {
+        try
+        {
+            var subTask = await _db.SubTasks.SingleOrDefaultAsync(x => x.Id == id);
+            if (subTask == null)
+            {
+                return new BaseResponse<GetSubTaskVM>
+                {
+                    Description = $"No SubTask found with ID: {id}.",
+                    StatusCode = Enum.StatusCode.NotFound
+                };
+            }
+
+            subTask.IsCompleted = true;
+            _db.SubTasks.Update(subTask);
+            await _db.SaveChangesAsync();
+
+            var vm = new GetSubTaskVM
+            {
+                Name = subTask.Name,
+                Priority = subTask.Priority,
+                TaskId = subTask.TaskId,
+                Id = subTask.Id,
+                UserId = subTask.UserId,
+            };
+
+            Log.Information("SubTask ID: {Id} marked as completed.", id);
+
+            return new BaseResponse<GetSubTaskVM>
+            {
+                Data = vm,
+                Description = "SubTask marked as completed successfully.",
+                StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while marking SubTask ID: {Id} as completed.", id);
+            return new BaseResponse<GetSubTaskVM>
+            {
+                Description = "An error occurred while marking the SubTask as completed.",
                 StatusCode = Enum.StatusCode.Error
             };
         }
@@ -158,4 +298,5 @@ public class SubTaskService : ISubTaskService
             };
         }
     }
+
 }

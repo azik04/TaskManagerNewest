@@ -90,7 +90,7 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IUserTaskService, UserTaskService>();
 builder.Services.AddScoped<IMailService, MailService>();
-builder.Services.AddScoped<ISubTaskService, SubTaskService>();
+builder.Services.AddScoped<ISubTaskService, SubTaskService >();
 
 builder.Services.AddScoped<ApplicationDbContext>();
 

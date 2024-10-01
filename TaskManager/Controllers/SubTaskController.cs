@@ -53,4 +53,37 @@ public class SubTaskController : ControllerBase
 
         return BadRequest(res);
     }
+    [HttpPut("{id}/Complite")]
+    [Authorize(Policy = "User")]
+
+    public async Task<IActionResult> Complete(long id)
+    {
+        var res = await _service.Complete(id);
+        if (res.StatusCode == Enum.StatusCode.OK)
+            return Ok(res);
+
+        return BadRequest(res);
+    }
+    [HttpGet("{taskId}/Done")]
+    [Authorize(Policy = "User")]
+
+    public async Task<IActionResult> GetByTaskDone(long taskId)
+    {
+        var res = await _service.GetByTaskDone(taskId);
+        if (res.StatusCode == Enum.StatusCode.OK)
+            return Ok(res);
+
+        return BadRequest(res);
+    }
+    [HttpGet("{taskId}/NotDone")]
+    [Authorize(Policy = "User")]
+
+    public async Task<IActionResult> GetByTaskNotDone(long taskId)
+    {
+        var res = await _service.GetByTaskNotDone(taskId);
+        if (res.StatusCode == Enum.StatusCode.OK)
+            return Ok(res);
+
+        return BadRequest(res);
+    }
 }

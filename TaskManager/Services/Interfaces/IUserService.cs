@@ -9,6 +9,8 @@ public interface IUserService
     public Task<IBaseResponse<GetUserVM>> Register(RegisterVM task);
     public Task<IBaseResponse<string>> LogIn(LogInVM task);
     public Task<IBaseResponse<ICollection<GetUserVM>>> GetAll();
+    public Task<IBaseResponse<ICollection<GetUserVM>>> GetAllUsers();
+    public Task<IBaseResponse<ICollection<GetUserVM>>> GetAllAdmins();
     public Task<IBaseResponse<GetUserVM>> Remove(long id);
     public Task<IBaseResponse<GetUserVM>> GetById(long id);
     public Task<IBaseResponse<GetUserVM>> ChangeRole(long id);

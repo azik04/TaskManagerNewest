@@ -223,6 +223,82 @@ public class UserService : IUserService
         }
     }
 
+
+    public async Task<IBaseResponse<ICollection<GetUserVM>>> GetAllAdmins()
+    {
+        try
+        {
+            var data = await _db.Users
+                .Where(x => !x.IsDeleted && x.Role == Enum.Role.Admin)
+                .ToListAsync();
+
+            Log.Information("Successfully retrieved {Count} admin users", data.Count);
+
+            var usersVM = data.Select(item => new GetUserVM
+            {
+                Id = item.Id,
+                Email = item.Email,
+                Password = item.Password, 
+                UserName = item.UserName,
+                Role = item.Role,
+            }).ToList();
+
+            return new BaseResponse<ICollection<GetUserVM>>
+            {
+                Data = usersVM,
+                Description = "Admin users retrieved successfully.",
+                StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while retrieving admin users: {Message}", ex.Message);
+            return new BaseResponse<ICollection<GetUserVM>>
+            {
+                Description = "An error occurred while retrieving admin users.",
+                StatusCode = Enum.StatusCode.Error
+            };
+        }
+    }
+
+    public async Task<IBaseResponse<ICollection<GetUserVM>>> GetAllUsers()
+    {
+        try
+        {
+            var data = await _db.Users
+                .Where(x => !x.IsDeleted && x.Role == Enum.Role.User)
+                .ToListAsync();
+
+            Log.Information("Successfully retrieved {Count} regular users", data.Count);
+
+            var usersVM = data.Select(item => new GetUserVM
+            {
+                Id = item.Id,
+                Email = item.Email,
+                Password = item.Password, 
+                UserName = item.UserName,
+                Role = item.Role,
+            }).ToList();
+
+            return new BaseResponse<ICollection<GetUserVM>>
+            {
+                Data = usersVM,
+                Description = "Regular users retrieved successfully.",
+                StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while retrieving regular users: {Message}", ex.Message);
+            return new BaseResponse<ICollection<GetUserVM>>
+            {
+                Description = "An error occurred while retrieving regular users.",
+                StatusCode = Enum.StatusCode.Error
+            };
+        }
+    }
+
+
     public async Task<IBaseResponse<GetUserVM>> GetById(long id)
     {
         try

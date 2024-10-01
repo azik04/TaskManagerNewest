@@ -49,6 +49,20 @@ public class UserController : ControllerBase
         var res = await _service.GetAll();
         return Ok(res);
     }
+    [HttpGet("Admins")]
+    [Authorize(Policy = "Admin")]
+    public async Task<IActionResult> GetAllAdmins()
+    {
+        var res = await _service.GetAllAdmins();
+        return Ok(res);
+    }
+    [HttpGet("Users")]
+    [Authorize(Policy = "Admin")]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var res = await _service.GetAllUsers();
+        return Ok(res);
+    }
     [HttpGet("{id}")]
 
     public async Task<IActionResult> GetById(long id)
