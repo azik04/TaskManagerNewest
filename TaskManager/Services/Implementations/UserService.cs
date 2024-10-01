@@ -452,98 +452,51 @@ public class UserService : IUserService
 
     public async Task<IBaseResponse<GetUserVM>> Remove(long id)
     {
-        using (var transaction = await _db.Database.BeginTransactionAsync())
+        try
         {
-            try
+            var user = await _db.Users.SingleOrDefaultAsync(x => x.Id == id);
+            if (user == null)
             {
-                var user = await _db.Users.SingleOrDefaultAsync(x => x.Id == id);
-                if (user == null)
-                {
-                    Log.Warning("User with Id {UserId} not found during removal", id);
-                    return new BaseResponse<GetUserVM>
-                    {
-                        Description = "User not found.",
-                        StatusCode = Enum.StatusCode.NotFound
-                    };
-                }
-
-                user.IsDeleted = true;
-                user.DeletedAt = DateTime.Now;
-
-                var themes = await _db.Themes.Where(x => x.UserId == id).ToListAsync();
-                foreach (var theme in themes)
-                {
-                    theme.IsDeleted = true;
-                    theme.DeletedAt = DateTime.Now;
-
-                    var tasks = await _db.Tasks.Where(x => x.ThemeId == theme.Id).ToListAsync();
-                    foreach (var task in tasks)
-                    {
-                        task.IsDeleted = true;
-                        task.DeletedAt = DateTime.Now;
-
-                        var files = await _db.Files.Where(x => x.TaskId == task.Id).ToListAsync();
-                        foreach (var file in files)
-                        {
-                            file.IsDeleted = true;
-                            file.DeletedAt = DateTime.Now;
-                        }
-                        _db.Files.UpdateRange(files);
-                    }
-                    _db.Tasks.UpdateRange(tasks);
-                }
-                _db.Themes.UpdateRange(themes);
-
-                var comments = await _db.Comments.Where(x => x.UserId == id).ToListAsync();
-                foreach (var comment in comments)
-                {
-                    comment.IsDeleted = true;
-                    comment.DeletedAt = DateTime.Now;
-                }
-                _db.Comments.UpdateRange(comments);
-
-                var userTasks = await _db.UserTasks.Where(x => x.UserId == id).ToListAsync();
-                foreach (var userTask in userTasks)
-                {
-                    userTask.IsDeleted = true;
-                    userTask.DeletedAt = DateTime.Now;
-                }
-                _db.UserTasks.UpdateRange(userTasks);
-
-                _db.Users.Update(user);
-
-                await _db.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-
-                var vm = new GetUserVM
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    Password = user.Password,
-                    UserName = user.UserName,
-                    Role = user.Role,
-                };
-
-                Log.Information("User with Id {UserId} removed successfully", id);
+                Log.Warning("User with Id {UserId} not found during removal", id);
                 return new BaseResponse<GetUserVM>
                 {
-                    Data = vm,
-                    Description = "User removed successfully",
-                    StatusCode = Enum.StatusCode.OK
+                    Description = "User not found.",
+                    StatusCode = Enum.StatusCode.NotFound
                 };
             }
-            catch (Exception ex)
+
+            user.IsDeleted = true;
+            user.DeletedAt = DateTime.Now;
+
+            _db.Users.Update(user);
+            await _db.SaveChangesAsync();
+
+            var vm = new GetUserVM
             {
-                await transaction.RollbackAsync(); 
-                Log.Error(ex, "Error occurred while removing UserId {UserId}: {Message}", id, ex.Message);
-                return new BaseResponse<GetUserVM>
-                {
-                    Description = ex.Message,
-                    StatusCode = Enum.StatusCode.Error
-                };
-            }
+                Id = user.Id,
+                Email = user.Email,
+                Password = user.Password,
+                UserName = user.UserName,
+                Role = user.Role,
+
+            };
+            Log.Information("User with Id {UserId} removed successfully", id);
+
+            return new BaseResponse<GetUserVM>
+            {
+                Data = vm,
+                Description = "User removed successfully",
+                StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while removing UserId {UserId}: {Message}", id, ex.Message);
+            return new BaseResponse<GetUserVM>
+            {
+                Description = ex.Message,
+                StatusCode = Enum.StatusCode.Error
+            };
         }
     }
-
 }
