@@ -63,6 +63,13 @@ public class UserController : ControllerBase
         var res = await _service.GetAllUsers();
         return Ok(res);
     }
+    [HttpGet]
+    [Authorize(Policy = "Admin")]
+    public async Task<IActionResult> GetAll()
+    {
+        var res = await _service.GetAll();
+        return Ok(res);
+    }
     [HttpGet("{id}")]
 
     public async Task<IActionResult> GetById(long id)

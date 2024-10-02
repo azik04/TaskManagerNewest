@@ -499,4 +499,42 @@ public class UserService : IUserService
             };
         }
     }
+
+    public async Task<IBaseResponse<ICollection<GetUserVM>>> GetAll()
+    {
+        try
+        {
+            var data = await _db.Users
+                .Where(x => !x.IsDeleted)
+                .ToListAsync();
+
+            Log.Information("Successfully retrieved {Count} regular users", data.Count);
+
+            var usersVM = data.Select(item => new GetUserVM
+            {
+                Id = item.Id,
+                Email = item.Email,
+                Password = item.Password,
+                UserName = item.UserName,
+                Role = item.Role,
+            }).ToList();
+
+            return new BaseResponse<ICollection<GetUserVM>>
+            {
+                Data = usersVM,
+                Description = "Regular users retrieved successfully.",
+                StatusCode = Enum.StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while retrieving regular users: {Message}", ex.Message);
+            return new BaseResponse<ICollection<GetUserVM>>
+            {
+                Description = "An error occurred while retrieving regular users.",
+                StatusCode = Enum.StatusCode.Error
+            };
+        }
+    }
 }
+
