@@ -143,6 +143,38 @@ namespace TaskManager.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SubTasks",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Priority = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
+                    IsCompleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubTasks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubTasks_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SubTasks_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserTasks",
                 columns: table => new
                 {
@@ -191,6 +223,16 @@ namespace TaskManager.Migrations
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SubTasks_TaskId",
+                table: "SubTasks",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubTasks_UserId",
+                table: "SubTasks",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tasks_ExecutiveUserId",
                 table: "Tasks",
                 column: "ExecutiveUserId");
@@ -219,6 +261,9 @@ namespace TaskManager.Migrations
 
             migrationBuilder.DropTable(
                 name: "Files");
+
+            migrationBuilder.DropTable(
+                name: "SubTasks");
 
             migrationBuilder.DropTable(
                 name: "UserTasks");

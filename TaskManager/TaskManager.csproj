@@ -33,6 +33,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Validation\UserTasks\" />
+	  <Folder Include="wwwroot\uploads\" />
 	</ItemGroup>
 
 

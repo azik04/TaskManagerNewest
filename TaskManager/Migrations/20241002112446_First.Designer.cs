@@ -12,7 +12,7 @@ using TaskManager.Context;
 namespace TaskManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240925210249_First")]
+    [Migration("20241002112446_First")]
     partial class First
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace TaskManager.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TaskManager.Models.Comment", b =>
+            modelBuilder.Entity("TaskManager.Models.Comments", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -90,6 +90,49 @@ namespace TaskManager.Migrations
                     b.HasIndex("TaskId");
 
                     b.ToTable("Files");
+                });
+
+            modelBuilder.Entity("TaskManager.Models.SubTasks", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SubTasks");
                 });
 
             modelBuilder.Entity("TaskManager.Models.Tasks", b =>
@@ -181,7 +224,7 @@ namespace TaskManager.Migrations
                     b.ToTable("Themes");
                 });
 
-            modelBuilder.Entity("TaskManager.Models.UserTask", b =>
+            modelBuilder.Entity("TaskManager.Models.UserTasks", b =>
                 {
                     b.Property<long>("TaskId")
                         .HasColumnType("bigint");
@@ -258,7 +301,7 @@ namespace TaskManager.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TaskManager.Models.Comment", b =>
+            modelBuilder.Entity("TaskManager.Models.Comments", b =>
                 {
                     b.HasOne("TaskManager.Models.Tasks", "Tasks")
                         .WithMany("Comments")
@@ -286,6 +329,25 @@ namespace TaskManager.Migrations
                         .IsRequired();
 
                     b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("TaskManager.Models.SubTasks", b =>
+                {
+                    b.HasOne("TaskManager.Models.Tasks", "Task")
+                        .WithMany("CoTasks")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaskManager.Models.Users", "User")
+                        .WithMany("CoTasks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TaskManager.Models.Tasks", b =>
@@ -318,7 +380,7 @@ namespace TaskManager.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("TaskManager.Models.UserTask", b =>
+            modelBuilder.Entity("TaskManager.Models.UserTasks", b =>
                 {
                     b.HasOne("TaskManager.Models.Tasks", "Task")
                         .WithMany("UserTasks")
@@ -339,6 +401,8 @@ namespace TaskManager.Migrations
 
             modelBuilder.Entity("TaskManager.Models.Tasks", b =>
                 {
+                    b.Navigation("CoTasks");
+
                     b.Navigation("Comments");
 
                     b.Navigation("Files");
@@ -353,6 +417,8 @@ namespace TaskManager.Migrations
 
             modelBuilder.Entity("TaskManager.Models.Users", b =>
                 {
+                    b.Navigation("CoTasks");
+
                     b.Navigation("Comment");
 
                     b.Navigation("Tasks");
